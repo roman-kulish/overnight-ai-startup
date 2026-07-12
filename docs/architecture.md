@@ -49,7 +49,7 @@ Each app calls a dedicated Worker endpoint. The Worker is responsible for:
 
 ## AI Gateway strategy
 
-One gateway per app keeps rate limits, budgets, and guardrails independent. The application code stays small because the gateway handles almost all traffic and cost protection.
+One shared AI Gateway keeps management simple. Per-app spend limits and analytics are enforced by passing `metadata: { app: "<app>" }` on each request and configuring scoped rules in the AI Gateway dashboard. Application-level, per-IP rate limiting is handled in the Worker because the shared gateway only supports global request limits.
 
 ## Models
 
