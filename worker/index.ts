@@ -3,15 +3,17 @@ import handleAgency from './routes/agency.ts';
 import handleRoast from './routes/roast.ts';
 import handleOracle from './routes/oracle.ts';
 
-function notFoundResponse(): Response {
-  return new Response(JSON.stringify({ ok: false, error: 'Not found' }), {
-    status: 404,
+const MAX_BODY_SIZE = 10_000; // bytes
+
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
     headers: { 'content-type': 'application/json' },
   });
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (!url.pathname.startsWith('/api/')) {
@@ -19,7 +21,12 @@ export default {
     }
 
     if (request.method !== 'POST') {
-      return notFoundResponse();
+      return jsonResponse({ ok: false, error: 'Method not allowed' }, 405);
+    }
+
+    const contentLength = Number(request.headers.get('content-length') ?? '0');
+    if (contentLength > MAX_BODY_SIZE) {
+      return jsonResponse({ ok: false, error: 'Request body too large' }, 413);
     }
 
     const ip = request.headers.get('CF-Connecting-IP') ?? 'cf-placeholder-ip';
@@ -34,7 +41,7 @@ export default {
       case '/api/oracle':
         return handleOracle(env, request, ip);
       default:
-        return notFoundResponse();
+        return jsonResponse({ ok: false, error: 'Not found' }, 404);
     }
   },
 } satisfies ExportedHandler<Env>;

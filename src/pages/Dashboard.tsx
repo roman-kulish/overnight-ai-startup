@@ -1,8 +1,17 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
+import type { LucideIcon } from 'lucide-react'
 import { Sparkles, Briefcase, Flame, Star } from 'lucide-react'
 
-const apps = [
+type AppEntry = {
+  name: string
+  description: string
+  route: string
+  icon: LucideIcon
+  color: string
+}
+
+const apps: AppEntry[] = [
   {
     name: 'Meditate to Your Shares',
     description: 'Guided meditation for stock volatility',
@@ -35,7 +44,7 @@ const apps = [
 
 function Dashboard() {
   return (
-    <section className="flex flex-col gap-10 px-6 py-12 max-w-6xl mx-auto">
+    <section className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-12">
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight text-foam sm:text-4xl">
           Overnight AI Startup
@@ -65,7 +74,7 @@ function Dashboard() {
               </motion.div>
             </Link>
           )
-        }) }
+        })}
       </div>
     </section>
   )

@@ -1,17 +1,26 @@
-import { Link, Outlet } from 'react-router'
+import { Link, Outlet, useLocation } from 'react-router'
 import { Coffee } from 'lucide-react'
 
 function AppShell() {
+  const location = useLocation()
+  const isDashboard = location.pathname === '/'
+
   return (
     <div className="flex min-h-screen flex-col bg-night text-foam">
       <header className="border-b border-border/60 bg-panel/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link
-            to="/"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-foam transition hover:bg-accent/10 hover:text-accent-glow"
-          >
-            Return to Dashboard
-          </Link>
+          {isDashboard ? (
+            <span className="text-sm font-semibold tracking-wide text-accent-glow">
+              overnight.ai
+            </span>
+          ) : (
+            <Link
+              to="/"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-foam transition hover:bg-accent/10 hover:text-accent-glow"
+            >
+              Return to Dashboard
+            </Link>
+          )}
           <span className="text-sm font-semibold tracking-wide text-accent-glow">
             overnight.ai
           </span>
