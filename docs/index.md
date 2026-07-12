@@ -1,14 +1,10 @@
 ---
 okf_version: "0.1"
-title: "Overnight AI Startup"
-description: "A social experiment vibe-coding parody AI web apps"
 ---
 
 # Overnight AI Startup
 
-A Cloudflare-hosted dashboard of parody AI applications born from a satirical essay about the YouTube "overnight AI startup" genre.
-
-This knowledge bundle documents the project, its architecture, and the security controls that keep a public-facing vibe-coded experiment from becoming an expensive mistake.
+A social experiment vibe-coding parody AI web apps. This knowledge bundle documents the project, its architecture, and the security controls that keep a public-facing vibe-coded experiment from becoming an expensive mistake.
 
 ## Concepts
 
