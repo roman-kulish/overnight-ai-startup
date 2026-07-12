@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-night: #0b0c10;
+  --color-panel: #15161c;
+  --color-border: #2a2c35;
+  --color-muted: #9ba3b0;
+  --color-foam: #e6e8ee;
+  --color-accent: #8b5cf6;
+  --color-accent-glow: #a78bfa;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+}
+
+body {
+  background-color: var(--color-night);
+  color: var(--color-foam);
+  min-height: 100vh;
+}

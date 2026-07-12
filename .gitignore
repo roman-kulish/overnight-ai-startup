@@ -1,38 +1,40 @@
 # Local agent/tool configuration
- .opencode
- .cursor
- .claude
- *.local
+.opencode
+.cursor
+.claude
+*.local
 
- # Build output
- dist
- .wrangler
- .cloudflare
+# Build output
+dist
+.wrangler
+.cloudflare
 
- # Dependencies
- node_modules
- *.log
- pnpm-lock.yaml
- yarn.lock
- package-lock.json
+# Dependencies
+node_modules
+*.log
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
 
- # Environment
- .env
- .env.local
- .env.*.local
+# Environment
+.env
+.env.local
+.env.*.local
+.dev.vars
+.dev.vars.*
 
- # Editor / OS
- .vscode
- .idea
- .DS_Store
- Thumbs.db
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
 
- # TypeScript
- *.tsbuildinfo
+# TypeScript
+*.tsbuildinfo
 
- # Testing
- coverage
- .coverage
+# Testing
+coverage
+.coverage
 
- # Misc
- *.tgz
+# Misc
+*.tgz
