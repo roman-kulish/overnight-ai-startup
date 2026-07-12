@@ -16,7 +16,7 @@ export async function parseJson(request: Request): Promise<unknown | null> {
   }
 }
 
-type ChatMessage = { role: 'system' | 'user'; content: string };
+export type ChatMessage = { role: 'system' | 'user'; content: string };
 
 export interface AppConfig<TOutput> {
   app: string;
