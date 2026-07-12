@@ -12,25 +12,28 @@ This is a public-facing LLM application. Security is focused on cost control, ab
 
 ## Layer 1: AI Gateway
 
-A single shared AI Gateway handles:
+Each app has its own AI Gateway that handles:
 
 - **Guardrails**: content moderation on prompts and responses
-- **Global rate limiting**: total request limits across all apps
-- **Spend limits**: per-app daily/monthly dollar budgets, scoped by `app` metadata
+- **Rate limiting**: per-app request limits
+- **Spend limits**: per-app daily/monthly dollar budgets
 - **Caching**: cached LLM responses for identical inputs
 
 The gateway returns a `429 Too Many Requests` response when a limit is exceeded.
 
-## Layer 2: Application validation and per-IP rate limiting
+## Layer 2: Application validation
 
 The Worker validates every request before touching the gateway:
 
-- **Per-IP, per-app rate limits** backed by KV
 - **Length limits** per app
 - **Format validation** with allow-listed patterns
 - **Control character stripping**
 - **Prompt injection pattern detection**
 - **Output length and content checks**
+
+## Layer 3: Bot mitigation
+
+Cloudflare Turnstile can appear after a threshold of rapid requests from the same IP.
 
 ## Layer 3: CAPTCHA
 
