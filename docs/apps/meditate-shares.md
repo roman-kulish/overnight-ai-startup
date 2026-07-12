@@ -24,3 +24,11 @@ Yahoo Finance or equivalent free API for historical prices.
 ## Model
 
 `@cf/meta/llama-3.2-3b-instruct` with fallback to `@cf/meta/llama-3.2-1b-instruct`.
+
+## Related
+
+- [Architecture](../architecture.md)
+- [Security Controls](../security.md)
+- [AI Automation Agency Generator](./agency-generator.md)
+- [VC Roast Pitch Deck](./vc-roast.md)
+- [Crypto-Astrology Oracle](./crypto-oracle.md)

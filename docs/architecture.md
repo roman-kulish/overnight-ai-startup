@@ -61,3 +61,10 @@ One gateway per app keeps rate limits, budgets, and guardrails independent. The 
 | Oracle | `@cf/meta/llama-3.1-8b-instruct-fp8-fast` | `@cf/meta/llama-3.2-3b-instruct` |
 
 Models are configurable through environment variables so they can be swapped without redeploying code.
+
+## Related
+
+- [Project overview](./project.md)
+- [Security Controls](./security.md)
+- [Deployment](./deployment.md)
+- [Applications](./apps/index.md)

@@ -24,3 +24,11 @@ Submit a one-sentence "billion-dollar AI idea" and get a brutal roast in Silicon
 ## Visuals
 
 Dark-mode pitch deck layout with a ticking valuation display.
+
+## Related
+
+- [Architecture](../architecture.md)
+- [Security Controls](../security.md)
+- [Meditate to Your Shares](./meditate-shares.md)
+- [AI Automation Agency Generator](./agency-generator.md)
+- [Crypto-Astrology Oracle](./crypto-oracle.md)

@@ -28,3 +28,11 @@ CoinGecko free API for real-time crypto prices. Optional planetary ephemeris for
 ## Visuals
 
 Mystical star charts layered over stark financial graphs.
+
+## Related
+
+- [Architecture](../architecture.md)
+- [Security Controls](../security.md)
+- [Meditate to Your Shares](./meditate-shares.md)
+- [AI Automation Agency Generator](./agency-generator.md)
+- [VC Roast Pitch Deck](./vc-roast.md)

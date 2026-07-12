@@ -59,3 +59,9 @@ Cloudflare Turnstile appears after a threshold of rapid requests from the same I
 - **Agency**: hobby description, max 200 characters
 - **VC Roast**: idea pitch, max 500 characters
 - **Oracle**: zodiac + crypto, max 100 characters
+
+## Related
+
+- [Architecture](./architecture.md)
+- [Deployment](./deployment.md)
+- [Applications](./apps/index.md)

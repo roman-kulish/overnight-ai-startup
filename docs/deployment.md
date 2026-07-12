@@ -39,3 +39,9 @@ Set these in Cloudflare or via Wrangler secrets:
 ## Domain
 
 The site is deployed at `vibe-coding.shiretechpartners.com.au` with a Cloudflare-managed custom domain.
+
+## Related
+
+- [Project overview](./project.md)
+- [Architecture](./architecture.md)
+- [Security Controls](./security.md)

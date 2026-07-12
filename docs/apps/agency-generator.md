@@ -25,3 +25,11 @@ A parody of the "AI Automation Agency" hustle gurus. Enter a mundane hobby and g
 ## Visuals
 
 Cyberpunk-neon "hustle bro" dashboard with a fake revenue graph that rockets up and to the right.
+
+## Related
+
+- [Architecture](../architecture.md)
+- [Security Controls](../security.md)
+- [Meditate to Your Shares](./meditate-shares.md)
+- [VC Roast Pitch Deck](./vc-roast.md)
+- [Crypto-Astrology Oracle](./crypto-oracle.md)

@@ -8,3 +8,9 @@ The four parody apps that make up the dashboard.
 - [AI Automation Agency Generator](./agency-generator.md)
 - [VC Roast Pitch Deck](./vc-roast.md)
 - [Crypto-Astrology Oracle](./crypto-oracle.md)
+
+## Related
+
+- [Project overview](../project.md)
+- [Architecture](../architecture.md)
+- [Security Controls](../security.md)

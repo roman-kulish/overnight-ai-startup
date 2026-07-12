@@ -37,3 +37,10 @@ Live at <https://vibe-coding.shiretechpartners.com.au>.
 
 If the experiment fails to deliver a mortgage-free life, the author accepts coffee:
 <https://buymeacoffee.com/romanko>
+
+## Related
+
+- [Architecture](./architecture.md)
+- [Security Controls](./security.md)
+- [Deployment](./deployment.md)
+- [The four apps](./apps/index.md)
