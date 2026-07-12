@@ -1,0 +1,38 @@
+# Local agent/tool configuration
+ .opencode
+ .cursor
+ .claude
+ *.local
+
+ # Build output
+ dist
+ .wrangler
+ .cloudflare
+
+ # Dependencies
+ node_modules
+ *.log
+ pnpm-lock.yaml
+ yarn.lock
+ package-lock.json
+
+ # Environment
+ .env
+ .env.local
+ .env.*.local
+
+ # Editor / OS
+ .vscode
+ .idea
+ .DS_Store
+ Thumbs.db
+
+ # TypeScript
+ *.tsbuildinfo
+
+ # Testing
+ coverage
+ .coverage
+
+ # Misc
+ *.tgz
