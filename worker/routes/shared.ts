@@ -153,7 +153,9 @@ function createStreamResponse(
     status: 200,
     headers: {
       'content-type': 'text/event-stream',
-      'cache-control': 'no-cache',
+      'cache-control': 'no-cache, no-transform',
+      'connection': 'keep-alive',
+      'x-accel-buffering': 'no', // Prevent nginx/proxy buffering
     },
   });
 }
