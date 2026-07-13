@@ -41,13 +41,15 @@ The UI animates the `valuation` down to `$0.00` while the roast streams in a spe
 
 1. Validate and sanitize the pitch.
 2. Run prompt-injection detection.
-3. Call Workers AI through the `vc-roast` AI Gateway with `stream: true`.
+3. Call Workers AI with `stream: true` **bypassing the AI Gateway** (the gateway buffers the entire response for caching/logging, which breaks streaming).
 4. The worker streams token events to the client and computes deterministic fake valuation from Silicon Valley buzzword / cliché count up front.
-5. Return `{ ok: true, roast: { text, valuation, stage } }` when not streaming; otherwise emit an Server-Sent Events stream.
+5. Return `{ ok: true, roast: { text, valuation, stage } }` when not streaming; otherwise emit a Server-Sent Events stream.
+
+> **Note:** Non-streaming requests still go through the AI Gateway for rate limiting, spend caps, and guardrails. Streaming requests bypass the gateway because it does not support streaming passthrough.
 
 ### Valuation logic
 
-- 0 buzzwords → `$0.00`
+- 0 buzzwords → random `$50,000`–`$150,000` (small valuation for terrible ideas)
 - n ≥ 1 buzzwords → `min(10_000_000, max(100_000, n × 1_000_000))`
 
 Stages map to the buzzword count: `Pre-Industrial`, `Pre-Concept`, `Pre-Product`, `Pre-Revenue`, `Pre-Everything`, and `Pre-Thermodynamics`.

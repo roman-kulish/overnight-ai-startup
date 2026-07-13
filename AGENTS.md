@@ -32,6 +32,7 @@ A Cloudflare Workers + React dashboard hosting 4 parody AI apps satirizing the "
 - Reusable AI routes are built with `createAIPipelineHandler` in `worker/routes/shared.ts`.
 - Each route reads its model and AI Gateway from environment variables and returns a semantic response key (e.g., `roast`, `oracle`).
 - Keep deterministic business logic in the Worker rather than the frontend; the UI only renders what the API returns.
+- Random values (e.g., zero-buzzword valuation) add variety to parody apps — use `Math.random()` with bounded ranges and test with `toBeGreaterThanOrEqual`/`toBeLessThanOrEqual`.
 
 ## Testing
 
@@ -41,9 +42,12 @@ A Cloudflare Workers + React dashboard hosting 4 parody AI apps satirizing the "
 ## Streaming & SSE Patterns
 
 - **Always add anti-buffering headers** to SSE responses: `cache-control: no-cache, no-transform`, `connection: keep-alive`, `x-accel-buffering: no`. Without these, proxies and dev servers buffer the entire stream before sending.
+- **AI Gateway buffers streaming responses.** The Cloudflare AI Gateway collects the entire response for caching/logging before returning it — observed 11s delay in production. Bypass the gateway for streaming requests by omitting `{ gateway: { id: ... } }` from `env.AI.run()`. Non-streaming requests still go through the gateway for rate limits, spend caps, and guardrails.
+- **Use `ReadableStream` not `TransformStream` for SSE.** Multi-layer Response wrapping (TransformStream → pump → writer → Response) causes Cloudflare Workers to buffer the entire stream. Create a `ReadableStream` directly with a `start()` method that enqueues chunks via `controller.enqueue()`.
 - **Use `AnimatePresence mode="sync"`** (not `"wait"`) when transitioning between loading and streaming states. `"wait"` causes a visible delay as the exit animation completes before the enter animation starts.
 - **Wait for metadata before transitioning status.** If your UI depends on metadata (like valuation), don't transition from `loading` to `roasting` on the first token — wait for the metadata event. Otherwise the UI mounts with undefined/zero values.
 - **Use local regex instances in concurrent environments.** Global regex with `lastIndex` state can cause race conditions. Create a new `RegExp` instance per request: `new RegExp(pattern.source, pattern.flags)`.
+- **Debug streaming with timing logs.** Add `console.log` with `Date.now()` around `stream.meta()` and `env.AI.run()` to identify bottlenecks. Use `wrangler tail` to view logs in production.
 
 ## UI/UX Patterns
 

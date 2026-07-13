@@ -27,6 +27,21 @@
   - Added UI/UX patterns section to `AGENTS.md` (reduced motion, transform performance, mobile-first pointers)
   - Updated `docs/apps/vc-roast.md` with streaming implementation details
   - Commented out non-roast apps in dashboard until they're implemented
+- **Root-caused the streaming buffering issue**
+  - Diagnostic logging revealed `env.AI.run()` took 11s to return even with `stream: true`
+  - Root cause: AI Gateway buffers the entire response for caching/logging — does not support streaming passthrough
+  - Fixed by bypassing the gateway for streaming requests (`env.AI.run()` without `{ gateway: { id: ... } }`)
+  - Also replaced `TransformStream` intermediary with direct `ReadableStream` to avoid multi-layer Response wrapping
+  - Guarded `controller.close()` in `finally` to avoid unhandled rejection on errored streams
+- **Improved zero-buzzword valuation**
+  - Changed from `$0` to a random value between `$50K` and `$150K`
+  - Gives the valuation ticker something to animate for pitches with no startup clichés
+  - Updated tests to verify range rather than exact `$0`
+- Captured learnings in `AGENTS.md`:
+  - AI Gateway buffers streaming responses (bypass for streaming)
+  - Use `ReadableStream` not `TransformStream` for SSE
+  - Debug streaming with timing logs and `wrangler tail`
+  - Random values with bounded ranges for parody logic
 - All tests, lint, and build pass
 
 ## 2026-07-12

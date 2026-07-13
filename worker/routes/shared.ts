@@ -137,7 +137,11 @@ function createStreamResponse(
         }
       } finally {
         reader.releaseLock();
-        controller.close();
+        try {
+          controller.close();
+        } catch {
+          // Controller may already be closed or errored.
+        }
       }
     },
   });
