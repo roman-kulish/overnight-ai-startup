@@ -137,6 +137,11 @@ const VALUATION_PER_BUZZWORD = 1_000_000;
 const MIN_VALUATION = 100_000;
 const MAX_VALUATION = 10_000_000;
 
+// Range for zero-buzzword pitches — gives the valuation ticker something
+// to count down from even when the pitch has no startup clichés.
+const ZERO_BUZZ_MIN = 50_000;
+const ZERO_BUZZ_MAX = 150_000;
+
 export type RoastResult = {
   text: string;
   valuation: number;
@@ -158,7 +163,9 @@ export function countBuzzwords(text: string): number {
 }
 
 export function computeValuation(buzzes: number): number {
-  if (buzzes === 0) return 0;
+  if (buzzes === 0) {
+    return Math.floor(Math.random() * (ZERO_BUZZ_MAX - ZERO_BUZZ_MIN + 1)) + ZERO_BUZZ_MIN;
+  }
   const raw = buzzes * VALUATION_PER_BUZZWORD;
   return Math.min(MAX_VALUATION, Math.max(MIN_VALUATION, raw));
 }

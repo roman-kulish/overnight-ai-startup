@@ -72,8 +72,10 @@ describe('countBuzzwords', () => {
 });
 
 describe('computeValuation', () => {
-  it('returns zero when no buzzwords are present', () => {
-    expect(computeValuation(0)).toBe(0);
+  it('returns a small random valuation when no buzzwords are present', () => {
+    const valuation = computeValuation(0);
+    expect(valuation).toBeGreaterThanOrEqual(50_000);
+    expect(valuation).toBeLessThanOrEqual(150_000);
   });
 
   it('keeps a positive buzzword valuation above the floor', () => {
@@ -209,13 +211,19 @@ describe('POST /api/roast (streaming)', () => {
     expect(body).toContain('"token":" token2"');
   });
 
-  it('sends zero valuation for pitches with no buzzwords', async () => {
+  it('sends a small non-zero valuation for pitches with no buzzwords', async () => {
     const stream = makeStream(['{"response":"Brutal."}']);
     const env = createStreamEnv(stream);
     const response = await handleRoast(env, postRequest({ input: 'powdered water', stream: true }), '127.0.0.1');
 
     const body = await response.text();
-    expect(body).toContain('"valuation":0');
+    expect(body).toContain('"stage":"Pre-Industrial"');
+    // Valuation should be between 50K and 150K for zero-buzzword pitches
+    const match = body.match(/"valuation":(\d+)/);
+    expect(match).not.toBeNull();
+    const valuation = parseInt(match![1], 10);
+    expect(valuation).toBeGreaterThanOrEqual(50_000);
+    expect(valuation).toBeLessThanOrEqual(150_000);
   });
 
   it('does not call the AI for invalid streaming requests', async () => {
