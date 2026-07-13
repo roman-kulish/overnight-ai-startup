@@ -123,6 +123,16 @@ const BUZZWORDS = [
   'spotify for',
 ];
 
+// Longer phrases are matched first so "generative ai" does not also count as "ai".
+const SORTED_BUZZWORDS = [...BUZZWORDS].sort((a, b) => b.length - a.length);
+const ESCAPED_BUZZWORDS = SORTED_BUZZWORDS.map((word) =>
+  word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+);
+const BUZZWORD_RE = new RegExp(
+  `(?:^|[^a-z0-9])(?:${ESCAPED_BUZZWORDS.join('|')})(?![a-z0-9-])`,
+  'gi',
+);
+
 const VALUATION_PER_BUZZWORD = 1_000_000;
 const MIN_VALUATION = 100_000;
 const MAX_VALUATION = 10_000_000;
@@ -137,30 +147,27 @@ export function countBuzzwords(text: string): number {
   const normalized = text.toLowerCase();
   let count = 0;
 
-  for (const word of BUZZWORDS) {
-    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const boundary = `(?:^|[^a-z0-9])${escaped}(?![a-z0-9-])`;
-    const matches = normalized.match(new RegExp(boundary, 'g'));
-    count += matches ? matches.length : 0;
+  BUZZWORD_RE.lastIndex = 0;
+  while (BUZZWORD_RE.exec(normalized) !== null) {
+    count += 1;
   }
 
   return count;
 }
 
 export function computeValuation(buzzes: number): number {
+  if (buzzes === 0) return 0;
   const raw = buzzes * VALUATION_PER_BUZZWORD;
   return Math.min(MAX_VALUATION, Math.max(MIN_VALUATION, raw));
 }
 
-// The satire curve is circular: zero buzzwords is just as fictional as an extreme pile.
-// Both ends land on Pre-Thermodynamics.
 export function computeStage(buzzes: number): string {
+  if (buzzes === 0) return 'Pre-Industrial';
   if (buzzes >= 8) return 'Pre-Thermodynamics';
   if (buzzes >= 6) return 'Pre-Everything';
   if (buzzes >= 4) return 'Pre-Revenue';
   if (buzzes >= 2) return 'Pre-Product';
-  if (buzzes >= 1) return 'Pre-Concept';
-  return 'Pre-Thermodynamics';
+  return 'Pre-Concept';
 }
 
 function buildRoastMessages(pitch: string): ChatMessage[] {
@@ -168,13 +175,21 @@ function buildRoastMessages(pitch: string): ChatMessage[] {
   return [
     {
       role: 'system',
-      content: `You are a brutally honest, buzzword-fluent Silicon Valley partner. Roast the startup pitch below in 2-3 short, punchy paragraphs using VC and startup YouTube vocabulary ("pre-revenue," "TAM," "pivot," "burn rate," "traction," "runway," etc.). Be witty, punchy, and mean-but-funny. Respond only with the roast.`,
+      content: `You are a tier-one Silicon Valley venture capitalist, a hybrid of Kevin O'Leary and an aggressive tech-twitter contrarian. Review the startup pitch below. Teardown the idea in 2-3 short, incredibly punchy paragraphs. Use heavy startup-bro and YouTube grifter terminology (e.g., TAM, pre-revenue, burn rate, runway, pivot, B2B SaaS play, unit economics, zero-interest rate phenomenon, lifestyle business). Avoid cliché AI openings like 'Oh boy,' 'Let's break this down,' or mentioning unicorns. Start immediately with a direct, devastating critique of their market assumptions or logic. Be funny, deeply condescending, but technically accurate regarding business failures. Respond only with the raw roast.`,
     },
     {
       role: 'user',
       content: `Pitch: "${safePitch}"`,
     },
   ];
+}
+
+function computeRoastMeta(input: string): Record<string, unknown> {
+  const buzzes = countBuzzwords(input);
+  return {
+    valuation: computeValuation(buzzes),
+    stage: computeStage(buzzes),
+  };
 }
 
 export default createAIPipelineHandler<RoastResult>({
@@ -189,5 +204,9 @@ export default createAIPipelineHandler<RoastResult>({
     const valuation = computeValuation(buzzes);
     const stage = computeStage(buzzes);
     return { text, valuation, stage };
+  },
+  stream: {
+    enabled: true,
+    meta: computeRoastMeta,
   },
 });

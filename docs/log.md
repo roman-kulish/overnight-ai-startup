@@ -1,5 +1,16 @@
 # Log
 
+## 2026-07-13
+
+- Overhauled **VC Roast Pitch Deck**: streaming AI responses, new persona UI, and global floating BMC button
+  - Added streaming path to `createAIPipelineHandler` in `worker/routes/shared.ts` (SSE tokens + metadata + `done` event)
+  - Updated `worker/routes/roast.ts` with clearer prompt, optimized single-pass buzzword regex, and deterministic zero-buzzword valuation
+  - Rewrote `src/pages/Roast.tsx` to consume the streaming API, show 11-stage loading progress, neon valuation ticker, and a character/speech-bubble layout (character hidden on mobile)
+  - Replaced the AppShell footer with a fixed floating "Buy Me a Coffee" button that is centered on mobile and bottom-right on desktop
+  - Added custom background utilities (`bg-roast-radial`, `bg-grid-pattern`) and a neon-pulse animation to `src/index.css`
+  - Fixed lint warnings and a buzzword-counting test assertion; all tests, lint, and build now pass
+  - Updated `docs/apps/vc-roast.md` and this log
+
 ## 2026-07-12
 
 - Implemented **VC Roast Pitch Deck** end-to-end

@@ -12,6 +12,33 @@
   --color-danger: #ef4444;
 }
 
+@utility bg-roast-radial {
+  background: radial-gradient(circle at 50% 40%, #1a102e 0%, #0b0c10 60%);
+}
+
+@utility bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility animate-neon {
+  animation: neon-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+    color: #ef4444;
+  }
+  50% {
+    text-shadow: 0 0 18px rgba(255, 85, 85, 0.9);
+    color: #ff5555;
+  }
+}
+
 body {
   background-color: var(--color-night);
   color: var(--color-foam);

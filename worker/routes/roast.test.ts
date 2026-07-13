@@ -16,11 +16,31 @@ function createEnv(aiResponse: unknown): Env {
   } as unknown as Env;
 }
 
+function createStreamEnv(stream: ReadableStream<Uint8Array>): Env {
+  return {
+    AI: { run: vi.fn().mockResolvedValue(stream) } as unknown as Env['AI'],
+    MODEL_VC_ROAST,
+    AI_GATEWAY_VC_ROAST,
+  } as unknown as Env;
+}
+
 function postRequest(body: object): Request {
   return new Request('http://localhost/api/roast', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
+  });
+}
+
+function makeStream(events: string[]): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      const encoder = new TextEncoder();
+      for (const event of events) {
+        controller.enqueue(encoder.encode(`data: ${event}\n\n`));
+      }
+      controller.close();
+    },
   });
 }
 
@@ -45,11 +65,19 @@ describe('countBuzzwords', () => {
   it('counts hyphenated and phrased buzzwords', () => {
     expect(countBuzzwords('Our game-changing B2B platform uses machine learning')).toBe(4);
   });
+
+  it('matches longer phrases before shorter substrings', () => {
+    expect(countBuzzwords('Generative AI platform using LLM')).toBe(3);
+  });
 });
 
 describe('computeValuation', () => {
-  it('floors at the minimum valuation', () => {
-    expect(computeValuation(0)).toBe(100_000);
+  it('returns zero when no buzzwords are present', () => {
+    expect(computeValuation(0)).toBe(0);
+  });
+
+  it('keeps a positive buzzword valuation above the floor', () => {
+    expect(computeValuation(1)).toBe(1_000_000);
   });
 
   it('scales by 1M per buzzword', () => {
@@ -62,8 +90,12 @@ describe('computeValuation', () => {
 });
 
 describe('computeStage', () => {
-  it('labels the lowest stage', () => {
-    expect(computeStage(0)).toBe('Pre-Thermodynamics');
+  it('labels zero buzzwords as Pre-Industrial', () => {
+    expect(computeStage(0)).toBe('Pre-Industrial');
+  });
+
+  it('labels a single buzzword', () => {
+    expect(computeStage(1)).toBe('Pre-Concept');
   });
 
   it('labels moderate buzzword density', () => {
@@ -75,7 +107,7 @@ describe('computeStage', () => {
   });
 });
 
-describe('POST /api/roast', () => {
+describe('POST /api/roast (non-streaming)', () => {
   it('returns a roast result for a valid pitch', async () => {
     const env = createEnv({ response: 'Pre-revenue and pre-product.' });
     const request = postRequest({ input: 'An AI that disrupts water with blockchain.' });
@@ -158,5 +190,40 @@ describe('POST /api/roast', () => {
     expect(response.status).toBe(200);
     const json = (await response.json()) as { ok: true; roast: { text: string } };
     expect(json.roast.text).toBe('Nested roast.');
+  });
+});
+
+describe('POST /api/roast (streaming)', () => {
+  it('returns a text/event-stream response', async () => {
+    const stream = makeStream(['{"response":"token1"}', '{"response":" token2"}']);
+    const env = createStreamEnv(stream);
+    const response = await handleRoast(env, postRequest({ input: 'powdered water', stream: true }), '127.0.0.1');
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toBe('text/event-stream');
+
+    const body = await response.text();
+    expect(body).toContain('"valuation"');
+    expect(body).toContain('"stage":"Pre-Industrial"');
+    expect(body).toContain('"token":"token1"');
+    expect(body).toContain('"token":" token2"');
+  });
+
+  it('sends zero valuation for pitches with no buzzwords', async () => {
+    const stream = makeStream(['{"response":"Brutal."}']);
+    const env = createStreamEnv(stream);
+    const response = await handleRoast(env, postRequest({ input: 'powdered water', stream: true }), '127.0.0.1');
+
+    const body = await response.text();
+    expect(body).toContain('"valuation":0');
+  });
+
+  it('does not call the AI for invalid streaming requests', async () => {
+    const env = createStreamEnv(makeStream([]));
+    const response = await handleRoast(env, postRequest({ input: '', stream: true }), '127.0.0.1');
+
+    expect(response.status).toBe(400);
+    const aiRun = env.AI.run as ReturnType<typeof vi.fn>;
+    expect(aiRun).not.toHaveBeenCalled();
   });
 });

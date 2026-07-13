@@ -1,25 +1,35 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Flame, RefreshCcw, AlertCircle, TrendingDown } from 'lucide-react'
 
-type RoastResult = {
+interface RoastMeta {
   text: string
   valuation: number
   stage: string
 }
 
-type ApiResponse =
-  | { ok: false; error: string }
-  | { ok: true; roast: RoastResult }
+interface StreamMeta {
+  valuation: number
+  stage: string
+}
+
+type ApiResponse = { ok: false; error: string } | { ok: true; roast: RoastMeta }
 
 const LOADING_STEPS = [
   'Analyzing Pitch...',
-  'Evaluating TAM...',
+  'Identifying Buzzwords...',
+  'Evaluating Total Addressable Market...',
   'Projecting Burn Rate...',
+  'Detecting Fake Differentiation...',
+  'Building Fictitious Cap Table...',
+  'Simulating Due Diligence...',
+  'Generating Valuation Spreadsheet...',
+  'Contacting Imaginary LPs...',
   'Preparing Roast...',
+  'Serving Verdict...',
 ]
 
-const TICK_DURATION_MS = 3500
+const STEP_DURATION_MS = 650
 
 function formatValuation(value: number): string {
   return `$${Math.max(0, value).toLocaleString('en-US', {
@@ -65,7 +75,7 @@ function useCountdown(from: number, duration: number) {
 }
 
 function ValuationTicker({ valuation }: { valuation: number }) {
-  const current = useCountdown(valuation, TICK_DURATION_MS)
+  const current = useCountdown(valuation, 2500)
   return (
     <span aria-label={`Peak valuation ${formatValuation(valuation)}`}>
       <span className="tabular-nums" aria-hidden="true">
@@ -75,28 +85,133 @@ function ValuationTicker({ valuation }: { valuation: number }) {
   )
 }
 
+function processSSEBuffer(
+  buffer: string,
+  handlers: {
+    onToken: (token: string) => void
+    onMeta: (meta: StreamMeta) => void
+    onDone: () => void
+    onError: (error: string) => void
+  },
+): string {
+  const parts = buffer.split('\n\n')
+  const remainder = parts.pop() ?? ''
+
+  for (const part of parts) {
+    for (const line of part.split('\n')) {
+      if (!line.startsWith('data:')) continue
+      const data = line.slice(5).trim()
+      if (!data) continue
+
+      try {
+        const payload = JSON.parse(data) as Record<string, unknown>
+
+        if (typeof payload.error === 'string') {
+          handlers.onError(payload.error)
+          return remainder
+        }
+
+        if (typeof payload.token === 'string') {
+          handlers.onToken(payload.token)
+        }
+
+        if (
+          (typeof payload.valuation === 'number' ||
+            typeof payload.stage === 'string') &&
+          payload.valuation !== undefined
+        ) {
+          handlers.onMeta(payload as unknown as StreamMeta)
+        }
+
+        if (payload.done === true) {
+          handlers.onDone()
+        }
+      } catch {
+        // Ignore malformed chunks.
+      }
+    }
+  }
+
+  return remainder
+}
+
+async function readEventStream(
+  response: Response,
+  signal: AbortSignal,
+  handlers: {
+    onToken: (token: string) => void
+    onMeta: (meta: StreamMeta) => void
+    onDone: () => void
+    onError: (error: string) => void
+  },
+) {
+  if (!response.body) {
+    handlers.onError('No response body')
+    return
+  }
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  try {
+    while (!signal.aborted) {
+      const { done, value } = await reader.read()
+      if (done) {
+        processSSEBuffer(buffer, handlers)
+        break
+      }
+
+      buffer += decoder.decode(value, { stream: true })
+      buffer = processSSEBuffer(buffer, handlers)
+    }
+  } catch (err) {
+    if (!signal.aborted) {
+      handlers.onError(err instanceof Error ? err.message : 'Stream failed')
+    }
+  } finally {
+    reader.releaseLock()
+  }
+}
+
 export default function Roast() {
   const [pitch, setPitch] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [result, setResult] = useState<RoastResult | null>(null)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'roasting' | 'success' | 'error'>('idle')
+  const [result, setResult] = useState<RoastMeta | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [streamedText, setStreamedText] = useState('')
   const [stepIndex, setStepIndex] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const finalTextRef = useRef('')
+
+  const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  function stopLoadingTicker() {
+    if (stepIntervalRef.current) {
+      clearInterval(stepIntervalRef.current)
+      stepIntervalRef.current = null
+    }
+  }
 
   useEffect(() => {
-    if (status !== 'loading') return
+    if (status !== 'loading') {
+      stopLoadingTicker()
+      return
+    }
 
-    const interval = setInterval(() => {
-      setStepIndex((i) => Math.min(i + 1, LOADING_STEPS.length - 1))
-    }, 900)
+    setStepIndex(0)
+    stepIntervalRef.current = setInterval(() => {
+      setStepIndex((i) => (i + 1 < LOADING_STEPS.length ? i + 1 : i))
+    }, STEP_DURATION_MS)
 
-    return () => clearInterval(interval)
+    return () => stopLoadingTicker()
   }, [status])
 
   useEffect(() => {
     return () => {
       abortRef.current?.abort()
+      stopLoadingTicker()
     }
   }, [])
 
@@ -104,12 +219,14 @@ export default function Roast() {
     event.preventDefault()
 
     const trimmed = pitch.trim()
-    if (!trimmed || status === 'loading') return
+    if (!trimmed || status === 'loading' || status === 'roasting') return
 
     setStatus('loading')
     setError(null)
     setResult(null)
+    setStreamedText('')
     setStepIndex(0)
+    finalTextRef.current = ''
 
     abortRef.current?.abort()
     const controller = new AbortController()
@@ -119,26 +236,64 @@ export default function Roast() {
       const response = await fetch('/api/roast', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ input: trimmed }),
+        body: JSON.stringify({ input: trimmed, stream: true }),
         signal: controller.signal,
       })
 
-      const data = (await response.json()) as ApiResponse
-
-      if (!response.ok || !data.ok) {
-        setStatus('error')
-        setError('error' in data ? data.error : 'Something went wrong')
-        return
+      if (!response.ok) {
+        const data = (await response.json()) as ApiResponse
+        throw new Error(!data.ok ? data.error : 'Request failed')
       }
 
-      setResult(data.roast)
-      setStatus('success')
+      if (response.headers.get('content-type')?.includes('text/event-stream')) {
+        await readEventStream(
+          response,
+          controller.signal,
+          {
+            onToken: (token) => {
+              finalTextRef.current += token
+              setStreamedText((prev) => prev + token)
+              setStatus((current) => (current === 'loading' ? 'roasting' : current))
+            },
+            onMeta: (meta) => {
+              setResult((prev) => ({
+                text: prev?.text ?? finalTextRef.current,
+                valuation: meta.valuation,
+                stage: meta.stage,
+              }))
+            },
+            onDone: () => {
+              setResult((prev) => ({
+                text: finalTextRef.current,
+                valuation: prev?.valuation ?? 0,
+                stage: prev?.stage ?? '',
+              }))
+              setStatus('success')
+              stopLoadingTicker()
+            },
+            onError: (message) => {
+              setError(message)
+              setStatus('error')
+              stopLoadingTicker()
+            },
+          },
+        )
+      } else {
+        const data = (await response.json()) as ApiResponse
+        if (!data.ok) {
+          throw new Error(data.error)
+        }
+        setResult(data.roast)
+        setStatus('success')
+        stopLoadingTicker()
+      }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
         return
       }
-      setStatus('error')
       setError(err instanceof Error ? err.message : 'Network error')
+      setStatus('error')
+      stopLoadingTicker()
     } finally {
       if (abortRef.current === controller) {
         abortRef.current = null
@@ -151,155 +306,196 @@ export default function Roast() {
     setStatus('idle')
     setResult(null)
     setError(null)
+    setStreamedText('')
     setStepIndex(0)
+    finalTextRef.current = ''
     textareaRef.current?.focus()
   }
 
+  const showResultPanel = status === 'roasting' || status === 'success'
+
+  const paragraphs = useMemo(() => {
+    const text = status === 'success' ? result?.text ?? streamedText : streamedText
+    return text.split('\n\n').filter(Boolean)
+  }, [streamedText, result, status])
+
   return (
-    <section className="mx-auto flex max-w-2xl flex-col gap-8 px-6 py-12">
-      <div className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-danger/10">
-          <Flame className="h-6 w-6 text-danger" aria-hidden="true" />
+    <div className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-roast-radial bg-grid-pattern">
+      <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12 md:py-16">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-foam sm:text-4xl">
+            VC Roast Pitch Deck
+          </h1>
+          <p className="mt-3 text-muted">
+            Submit your billion-dollar AI idea. Our general partner will tear it apart in real
+            time.
+          </p>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-foam sm:text-4xl">
-          VC Roast Pitch Deck
-        </h1>
-        <p className="mt-3 text-muted">
-          Submit your billion-dollar AI idea. We'll tear it apart with Silicon Valley precision.
-        </p>
-      </div>
 
-      <AnimatePresence mode="wait">
-        {status === 'idle' || status === 'error' ? (
-          <motion.form
-            key="input"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-5"
-          >
-            {error && (
-              <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-4 text-danger">
-                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-                <p className="text-sm">{error}</p>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="pitch" className="text-sm font-medium text-foam">
-                Your one-sentence pitch
-              </label>
-              <textarea
-                ref={textareaRef}
-                id="pitch"
-                value={pitch}
-                onChange={(e) => setPitch(e.target.value)}
-                placeholder="An AI that reminds me to drink water."
-                rows={4}
-                maxLength={500}
-                className="w-full resize-none rounded-2xl border border-border bg-panel p-4 text-foam placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-              />
-              <div className="flex justify-between text-xs text-muted">
-                <span>500 characters max</span>
-                <span>{pitch.length}/500</span>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={!pitch.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-danger px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-danger/25 transition hover:-translate-y-0.5 hover:bg-danger/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+        <AnimatePresence mode="wait">
+          {status === 'idle' || status === 'error' ? (
+            <motion.form
+              key="input"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              onSubmit={handleSubmit}
+              className="mx-auto w-full max-w-2xl rounded-3xl border border-border/80 bg-panel/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-10"
             >
-              <Flame className="h-4 w-4" aria-hidden="true" />
-              Roast my pitch
-            </button>
-          </motion.form>
-        ) : status === 'loading' ? (
-          <motion.div
-            key="loading"
-            role="status"
-            aria-live="polite"
-            aria-label={LOADING_STEPS[stepIndex]}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-            className="flex flex-col items-center gap-6 rounded-3xl border border-border bg-panel p-10 text-center"
-          >
-            <div className="relative">
-              <div className="h-12 w-12 animate-spin rounded-full border-2 border-border border-t-accent" />
-            </div>
+              {error && (
+                <div className="mb-5 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-4 text-danger">
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
 
-            <div className="space-y-2">
-              <p className="text-lg font-semibold text-foam">{LOADING_STEPS[stepIndex]}</p>
-              <p className="text-sm text-muted">Crunching imaginary numbers...</p>
-            </div>
+              <div className="flex flex-col gap-3">
+                <label htmlFor="pitch" className="text-sm font-medium text-foam">
+                  Your one-sentence pitch
+                </label>
+                <textarea
+                  ref={textareaRef}
+                  id="pitch"
+                  value={pitch}
+                  onChange={(e) => setPitch(e.target.value)}
+                  placeholder="An AI that reminds me to drink water."
+                  rows={5}
+                  maxLength={500}
+                  className="w-full resize-none rounded-2xl border border-border bg-night/60 p-4 text-foam placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                />
+                <div className="flex justify-between text-xs text-muted">
+                  <span>500 characters max</span>
+                  <span>{pitch.length}/500</span>
+                </div>
+              </div>
 
-            <div className="flex items-center gap-2 rounded-xl bg-night px-5 py-3 text-sm text-muted">
-              <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-              <span>Valuation:</span>
-              <span className="tabular-nums text-foam">pending</span>
-            </div>
-          </motion.div>
-        ) : (
-          result && (
+              <button
+                type="submit"
+                disabled={!pitch.trim()}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-danger px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-danger/25 transition hover:-translate-y-0.5 hover:bg-danger/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+                <Flame className="h-4 w-4" aria-hidden="true" />
+                Roast my pitch
+              </button>
+            </motion.form>
+          ) : status === 'loading' ? (
+            <motion.div
+              key="loading"
+              role="status"
+              aria-live="polite"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="mx-auto flex w-full max-w-2xl flex-col items-center gap-8 rounded-3xl border border-border/80 bg-panel/90 p-10 text-center shadow-2xl shadow-black/40"
+            >
+              <div className="relative h-12 w-12">
+                <div className="absolute inset-0 animate-ping rounded-full bg-danger/30" />
+                <div className="h-12 w-12 animate-spin rounded-full border-2 border-border border-t-danger" />
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-lg font-semibold text-foam">{LOADING_STEPS[stepIndex]}</p>
+                <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-border">
+                  <motion.div
+                    className="h-full bg-danger"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((stepIndex + 1) / LOADING_STEPS.length) * 100}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+                <p className="text-sm text-muted">Crunching imaginary numbers...</p>
+              </div>
+            </motion.div>
+          ) : (
             <motion.div
               key="result"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="flex flex-col gap-6 rounded-3xl border border-border bg-panel p-8 shadow-2xl shadow-danger/5"
+              className="mx-auto w-full max-w-2xl"
             >
-              <div className="flex flex-col gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                  Input
-                </p>
-                <p className="text-lg font-medium italic text-foam">"{pitch.trim()}"</p>
-              </div>
-
-              <div className="flex items-center justify-between rounded-2xl bg-night px-5 py-4">
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-                  <span>Valuation:</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold tabular-nums text-danger">
-                    <ValuationTicker valuation={result.valuation} />
-                  </p>
-                  <p className="text-xs text-muted">({result.stage})</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="h-1 w-16 rounded-full bg-danger" />
-                <div className="space-y-4 text-foam">
-                  {result.text.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="leading-relaxed">
-                      {paragraph}
+              <div className="rounded-3xl border border-border/80 bg-panel/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                      Peak Valuation
                     </p>
-                  ))}
+                    <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
+                      <ValuationTicker valuation={result?.valuation ?? 0} />
+                    </p>
+                    <p className="text-sm font-medium text-foam/80">
+                      {result?.stage ? `(${result.stage})` : '—'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
+                    <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
+                    <span className="font-medium">Current stage:</span>
+                    <span className="text-foam">{result?.stage || 'TBD'}</span>
+                  </div>
                 </div>
+
+                <div className="mt-6 border-t border-border/60 pt-6">
+                  <div className="h-1 w-16 rounded-full bg-danger" />
+                  <div className="mt-4 space-y-4 text-foam">
+                    {paragraphs.map((paragraph, index) => (
+                      <p key={index} className="leading-relaxed">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                {status === 'success' && (
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
+                  >
+                    <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+                    Roast another idea
+                  </button>
+                )}
               </div>
-
-              <button
-                type="button"
-                onClick={handleReset}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
-              >
-                <RefreshCcw className="h-4 w-4" aria-hidden="true" />
-                Roast another idea
-              </button>
             </motion.div>
-          )
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      <p className="text-center text-xs text-muted/60">
-        Not investment advice. Not even good advice.
-      </p>
-    </section>
+        {showResultPanel && (
+          <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-28 md:justify-end md:pb-12 md:pr-12">
+            <div className="pointer-events-auto relative hidden max-w-xs rounded-2xl border border-border/80 bg-panel/95 p-4 shadow-2xl shadow-black/40 backdrop-blur-sm md:block md:max-w-sm">
+              <div className="pointer-events-none absolute -bottom-2 right-8 h-4 w-4 rotate-45 bg-panel/95" />
+              <div className="relative z-10 max-h-56 overflow-y-auto pr-1 text-sm leading-relaxed text-foam">
+                {streamedText || result?.text ? (
+                  <>
+                    <span className="text-danger">“</span>
+                    {status === 'success' ? result?.text : streamedText}
+                    {status === 'roasting' && (
+                      <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-danger" />
+                    )}
+                    <span className="text-danger">”</span>
+                  </>
+                ) : (
+                  <span className="text-muted">Preparing opening statement...</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div
+        className={`pointer-events-none fixed bottom-0 right-0 z-10 hidden h-64 w-64 md:block md:h-80 md:w-80 ${showResultPanel ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
+      >
+        <img
+          src="/images/ceo-persona.png"
+          alt="Virtual VC Partner"
+          className="h-full w-full object-contain object-bottom"
+        />
+      </div>
+    </div>
   )
 }

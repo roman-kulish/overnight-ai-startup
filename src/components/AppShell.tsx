@@ -1,13 +1,12 @@
 import { Link, Outlet, useLocation } from 'react-router'
-import { Coffee } from 'lucide-react'
 
 function AppShell() {
   const location = useLocation()
   const isDashboard = location.pathname === '/'
 
   return (
-    <div className="flex min-h-screen flex-col bg-night text-foam">
-      <header className="border-b border-border/60 bg-panel/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="relative min-h-screen bg-night text-foam">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-panel/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           {isDashboard ? (
             <span className="text-sm font-semibold tracking-wide text-accent-glow">
@@ -27,23 +26,23 @@ function AppShell() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main>
         <Outlet />
       </main>
 
-      <footer className="border-t border-border/60 bg-panel/60">
-        <div className="mx-auto max-w-6xl px-6 py-5">
-          <a
-            href="https://buymeacoffee.com/romanko"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition hover:-translate-y-0.5 hover:bg-accent-glow"
-          >
-            <Coffee className="h-4 w-4" aria-hidden="true" />
-            Buy Me a Coffee
-          </a>
-        </div>
-      </footer>
+      <a
+        href="https://buymeacoffee.com/romanko"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Buy Me a Coffee"
+        className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 md:bottom-8 md:left-auto md:right-8 md:translate-x-0"
+      >
+        <img
+          src="/images/bmc-yellow-button.png"
+          alt="Buy Me a Coffee"
+          className="h-12 w-auto drop-shadow-lg transition-transform hover:scale-105"
+        />
+      </a>
     </div>
   )
 }
