@@ -95,67 +95,60 @@ function createStreamResponse(
   upstream: ReadableStream<Uint8Array>,
 ): Response {
   const encoder = new TextEncoder();
-  const { readable, writable } = new TransformStream<string, Uint8Array>({
-    transform(chunk, controller) {
-      controller.enqueue(encoder.encode(chunk));
-    },
-  });
-  const writer = writable.getWriter();
 
-  async function pump() {
-    const reader = upstream.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+  // Create a ReadableStream directly - this avoids the multi-layer Response wrapping
+  // that causes Cloudflare Workers to buffer the entire stream before sending.
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const reader = upstream.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-    try {
-      await writer.write(encodeSSE(meta));
+      try {
+        // Write metadata first
+        controller.enqueue(encoder.encode(encodeSSE(meta)));
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split('\n\n');
-        buffer = parts.pop() ?? '';
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop() ?? '';
 
-        for (const part of parts) {
-          const dataLine = part.split('\n').find((line) => line.startsWith('data:'));
-          if (!dataLine) continue;
+          for (const part of parts) {
+            const dataLine = part.split('\n').find((line) => line.startsWith('data:'));
+            if (!dataLine) continue;
 
-          const token = extractTokenFromData(dataLine.slice(5).trim());
-          if (token !== undefined) {
-            await writer.write(encodeSSE({ token }));
+            const token = extractTokenFromData(dataLine.slice(5).trim());
+            if (token !== undefined) {
+              controller.enqueue(encoder.encode(encodeSSE({ token })));
+            }
           }
         }
-      }
 
-      await writer.write(encodeSSE({ done: true }));
-    } catch (err) {
-      console.error('Stream pump error:', err);
-      try {
-        await writer.write(encodeSSE({ error: 'Stream interrupted' }));
-      } catch {
-        // Writer may already be closed.
+        controller.enqueue(encoder.encode(encodeSSE({ done: true })));
+      } catch (err) {
+        console.error('Stream pump error:', err);
+        try {
+          controller.enqueue(encoder.encode(encodeSSE({ error: 'Stream interrupted' })));
+        } catch {
+          // Controller may already be closed.
+        }
+      } finally {
+        reader.releaseLock();
+        controller.close();
       }
-    } finally {
-      reader.releaseLock();
-      try {
-        await writer.close();
-      } catch {
-        // Ignore close errors on an already-closed writer.
-      }
-    }
-  }
+    },
+  });
 
-  pump();
-
-  return new Response(readable, {
+  return new Response(stream, {
     status: 200,
     headers: {
       'content-type': 'text/event-stream',
       'cache-control': 'no-cache, no-transform',
       'connection': 'keep-alive',
-      'x-accel-buffering': 'no', // Prevent nginx/proxy buffering
+      'x-accel-buffering': 'no',
     },
   });
 }
