@@ -261,6 +261,7 @@ export default function Roast() {
                 valuation: meta.valuation,
                 stage: meta.stage,
               }))
+              setStatus((current) => (current === 'loading' ? 'roasting' : current))
             },
             onDone: () => {
               setResult((prev) => ({
@@ -312,8 +313,6 @@ export default function Roast() {
     textareaRef.current?.focus()
   }
 
-  const showResultPanel = status === 'roasting' || status === 'success'
-
   const paragraphs = useMemo(() => {
     const text = status === 'success' ? result?.text ?? streamedText : streamedText
     return text.split('\n\n').filter(Boolean)
@@ -321,7 +320,7 @@ export default function Roast() {
 
   return (
     <div className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-roast-radial bg-grid-pattern">
-      <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12 md:py-16">
+      <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 md:py-16">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-foam sm:text-4xl">
             VC Roast Pitch Deck
@@ -415,86 +414,74 @@ export default function Roast() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="mx-auto w-full max-w-2xl"
+              className="mx-auto w-full max-w-5xl"
             >
-              <div className="rounded-3xl border border-border/80 bg-panel/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      Peak Valuation
-                    </p>
-                    <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
-                      <ValuationTicker valuation={result?.valuation ?? 0} />
-                    </p>
-                    <p className="text-sm font-medium text-foam/80">
-                      {result?.stage ? `(${result.stage})` : '—'}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
-                    <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-                    <span className="font-medium">Current stage:</span>
-                    <span className="text-foam">{result?.stage || 'TBD'}</span>
-                  </div>
+              <div className="flex flex-col gap-6 md:flex-row md:items-start">
+                {/* CEO Image */}
+                <div className="hidden md:block md:w-64 md:flex-shrink-0">
+                  <img
+                    src="/images/ceo-persona.png"
+                    alt="Virtual VC Partner"
+                    className="h-auto w-full object-contain"
+                  />
                 </div>
 
-                <div className="mt-6 border-t border-border/60 pt-6">
-                  <div className="h-1 w-16 rounded-full bg-danger" />
-                  <div className="mt-4 space-y-4 text-foam">
-                    {paragraphs.map((paragraph, index) => (
-                      <p key={index} className="leading-relaxed">
-                        {paragraph}
-                      </p>
-                    ))}
+                {/* Thought Bubble Result */}
+                <div className="relative flex-1">
+                  {/* Thought bubble pointer */}
+                  <div className="absolute -left-3 top-12 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
+                  
+                  <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                          Peak Valuation
+                        </p>
+                        <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
+                          <ValuationTicker valuation={result?.valuation ?? 0} />
+                        </p>
+                        <p className="text-sm font-medium text-foam/80">
+                          {result?.stage ? `(${result.stage})` : '—'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
+                        <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
+                        <span className="font-medium">Current stage:</span>
+                        <span className="text-foam">{result?.stage || 'TBD'}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 border-t border-border/60 pt-6">
+                      <div className="h-1 w-16 rounded-full bg-danger" />
+                      <div className="mt-4 space-y-4 text-foam">
+                        {paragraphs.map((paragraph, index) => (
+                          <p key={index} className="leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                        {status === 'roasting' && (
+                          <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-danger" />
+                        )}
+                      </div>
+                    </div>
+
+                    {status === 'success' && (
+                      <button
+                        type="button"
+                        onClick={handleReset}
+                        className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
+                      >
+                        <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+                        Roast another idea
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                {status === 'success' && (
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
-                  >
-                    <RefreshCcw className="h-4 w-4" aria-hidden="true" />
-                    Roast another idea
-                  </button>
-                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {showResultPanel && (
-          <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-28 md:justify-end md:pb-12 md:pr-12">
-            <div className="pointer-events-auto relative hidden max-w-xs rounded-2xl border border-border/80 bg-panel/95 p-4 shadow-2xl shadow-black/40 backdrop-blur-sm md:block md:max-w-sm">
-              <div className="pointer-events-none absolute -bottom-2 right-8 h-4 w-4 rotate-45 bg-panel/95" />
-              <div className="relative z-10 max-h-56 overflow-y-auto pr-1 text-sm leading-relaxed text-foam">
-                {streamedText || result?.text ? (
-                  <>
-                    <span className="text-danger">“</span>
-                    {status === 'success' ? result?.text : streamedText}
-                    {status === 'roasting' && (
-                      <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-danger" />
-                    )}
-                    <span className="text-danger">”</span>
-                  </>
-                ) : (
-                  <span className="text-muted">Preparing opening statement...</span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div
-        className={`pointer-events-none fixed bottom-0 right-0 z-10 hidden h-64 w-64 md:block md:h-80 md:w-80 ${showResultPanel ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
-      >
-        <img
-          src="/images/ceo-persona.png"
-          alt="Virtual VC Partner"
-          className="h-full w-full object-contain object-bottom"
-        />
       </div>
     </div>
   )

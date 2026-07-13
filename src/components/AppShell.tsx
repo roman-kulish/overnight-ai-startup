@@ -16,7 +16,7 @@ function AppShell() {
               Return to Dashboard
             </Link>
             <span className="text-sm font-semibold tracking-wide text-accent-glow">
-              Overnight AI Startup
+              Overnight AI Startups
             </span>
           </div>
         </header>
