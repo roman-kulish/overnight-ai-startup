@@ -124,7 +124,7 @@ function AppCard({ app }: { app: AppEntry }) {
       className="group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 shadow-none transition-shadow duration-300 hover:scale-105 hover:-translate-y-1"
     >
       <Link to={app.route} className="flex h-full flex-col">
-        <div className="relative aspect-[3/4] w-full overflow-hidden">
+        <div className="relative aspect-2/3 w-full overflow-hidden">
           <img
             src={app.image}
             alt={app.name}
@@ -133,12 +133,12 @@ function AppCard({ app }: { app: AppEntry }) {
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         </div>
-        
+
         <div className="flex flex-1 flex-col gap-3 p-5">
           <h2 className="text-lg font-bold uppercase tracking-wide text-white">
             {app.name}
           </h2>
-          <p className="text-base font-medium leading-relaxed text-gray-300">
+          <p className="text-base font-normal leading-relaxed text-rose-300">
             {app.description}
           </p>
         </div>
