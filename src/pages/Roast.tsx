@@ -253,7 +253,7 @@ export default function Roast() {
             onToken: (token) => {
               finalTextRef.current += token
               setStreamedText((prev) => prev + token)
-              setStatus((current) => (current === 'loading' ? 'roasting' : current))
+              // Don't transition to 'roasting' here - wait for metadata
             },
             onMeta: (meta) => {
               setResult((prev) => ({
