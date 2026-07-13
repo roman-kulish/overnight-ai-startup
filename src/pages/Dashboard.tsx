@@ -124,7 +124,7 @@ function AppCard({ app }: { app: AppEntry }) {
       className="group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 shadow-none transition-shadow duration-300 hover:scale-105 hover:-translate-y-1"
     >
       <Link to={app.route} className="flex h-full flex-col">
-        <div className="relative aspect-[4/5] w-full overflow-hidden">
+        <div className="relative aspect-[3/4] w-full overflow-hidden">
           <img
             src={app.image}
             alt={app.name}
