@@ -414,14 +414,14 @@ export default function Roast() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="flex flex-col items-center justify-center gap-8 px-4 mt-8 mx-auto w-full max-w-5xl md:flex-row"
+              className="flex flex-col items-center gap-8 px-4 mt-8 mx-auto w-full max-w-6xl md:flex-row md:items-start"
             >
-              {/* CEO Avatar */}
-              <div className="flex-shrink-0">
+              {/* CEO Avatar - 2x larger and aligned with thought bubble */}
+              <div className="flex-shrink-0 md:pt-8">
                 <img
                   src="/images/ceo-persona.png"
                   alt="Virtual VC Partner"
-                  className="w-48 md:w-80 h-auto object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+                  className="w-96 md:w-[28rem] h-auto object-contain drop-shadow-[0_0_40px_rgba(0,0,0,0.6)]"
                 />
               </div>
 
@@ -429,10 +429,10 @@ export default function Roast() {
               <div className="relative flex-1 w-full">
                 {/* Mobile Pointer - Pointing up at the stacked avatar above it */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 block h-6 w-6 rotate-45 border-t border-l border-border/80 bg-panel/95 md:hidden" />
-                
-                {/* Desktop Pointer - Pointing left at the avatar */}
-                <div className="absolute -left-3 top-20 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
-                
+
+                {/* Desktop Pointer - Pointing left at the avatar's mouth area */}
+                <div className="absolute -left-3 top-16 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
+
                 <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
                   <div className="flex justify-between items-start w-full">
                     <div>
