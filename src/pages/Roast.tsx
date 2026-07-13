@@ -414,69 +414,67 @@ export default function Roast() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="mx-auto w-full max-w-5xl"
+              className="flex flex-col items-center justify-center gap-8 px-4 mt-8 mx-auto w-full max-w-5xl md:flex-row"
             >
-              <div className="flex flex-col gap-6 md:flex-row md:items-start">
-                {/* CEO Image */}
-                <div className="hidden md:block md:w-64 md:flex-shrink-0">
-                  <img
-                    src="/images/ceo-persona.png"
-                    alt="Virtual VC Partner"
-                    className="h-auto w-full object-contain"
-                  />
-                </div>
+              {/* CEO Avatar */}
+              <div className="flex-shrink-0">
+                <img
+                  src="/images/ceo-persona.png"
+                  alt="Virtual VC Partner"
+                  className="w-48 md:w-80 h-auto object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+                />
+              </div>
 
-                {/* Thought Bubble Result */}
-                <div className="relative flex-1">
-                  {/* Thought bubble pointer */}
-                  <div className="absolute -left-3 top-12 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
-                  
-                  <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                          Peak Valuation
-                        </p>
-                        <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
-                          <ValuationTicker valuation={result?.valuation ?? 0} />
-                        </p>
-                        <p className="text-sm font-medium text-foam/80">
-                          {result?.stage ? `(${result.stage})` : '—'}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
-                        <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-                        <span className="font-medium">Current stage:</span>
-                        <span className="text-foam">{result?.stage || 'TBD'}</span>
-                      </div>
+              {/* Thought Bubble Result */}
+              <div className="relative flex-1 w-full">
+                {/* Thought bubble pointer - aligned with avatar's upper chest/mouth area */}
+                <div className="absolute -left-3 top-20 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
+                
+                <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                        Peak Valuation
+                      </p>
+                      <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
+                        <ValuationTicker valuation={result?.valuation ?? 0} />
+                      </p>
+                      <p className="text-sm font-medium text-foam/80">
+                        {result?.stage ? `(${result.stage})` : '—'}
+                      </p>
                     </div>
 
-                    <div className="mt-6 border-t border-border/60 pt-6">
-                      <div className="h-1 w-16 rounded-full bg-danger" />
-                      <div className="mt-4 space-y-4 text-foam">
-                        {paragraphs.map((paragraph, index) => (
-                          <p key={index} className="leading-relaxed">
-                            {paragraph}
-                          </p>
-                        ))}
-                        {status === 'roasting' && (
-                          <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-danger" />
-                        )}
-                      </div>
+                    <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
+                      <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
+                      <span className="font-medium">Current stage:</span>
+                      <span className="text-foam">{result?.stage || 'TBD'}</span>
                     </div>
-
-                    {status === 'success' && (
-                      <button
-                        type="button"
-                        onClick={handleReset}
-                        className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
-                      >
-                        <RefreshCcw className="h-4 w-4" aria-hidden="true" />
-                        Roast another idea
-                      </button>
-                    )}
                   </div>
+
+                  <div className="mt-6 border-t border-border/60 pt-6">
+                    <div className="h-1 w-16 rounded-full bg-danger" />
+                    <div className="mt-4 space-y-4 text-foam">
+                      {paragraphs.map((paragraph, index) => (
+                        <p key={index} className="leading-relaxed">
+                          {paragraph}
+                        </p>
+                      ))}
+                      {status === 'roasting' && (
+                        <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-danger" />
+                      )}
+                    </div>
+                  </div>
+
+                  {status === 'success' && (
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
+                    >
+                      <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+                      Roast another idea
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>
