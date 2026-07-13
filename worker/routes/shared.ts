@@ -193,17 +193,17 @@ export function createAIPipelineHandler<TOutput = string>({
       }
 
       try {
-        const metaStartTime = Date.now();
         const meta = await stream.meta(validation.sanitized);
-        console.log(`[stream] meta computed in ${Date.now() - metaStartTime}ms`);
 
-        const aiStartTime = Date.now();
+        // Bypass AI Gateway for streaming requests.
+        // The gateway buffers the entire response for caching/logging,
+        // which defeats the purpose of streaming (11s delay observed in production).
+        // Non-streaming requests still go through the gateway for rate limiting,
+        // spend caps, and guardrails.
         const aiResponse = await env.AI.run(
           model(env),
           { messages, stream: true } as Record<string, unknown>,
-          { gateway: { id: gateway(env) } },
         );
-        console.log(`[stream] env.AI.run() returned in ${Date.now() - aiStartTime}ms, type: ${typeof aiResponse}, isReadableStream: ${aiResponse instanceof ReadableStream}`);
 
         if (!(aiResponse instanceof ReadableStream)) {
           return jsonResponse({ ok: false, error: 'AI did not return a stream' }, 502);
