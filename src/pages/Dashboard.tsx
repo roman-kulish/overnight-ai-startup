@@ -121,28 +121,35 @@ function AppCard({ app }: { app: AppEntry }) {
   return (
     <TiltCard
       shadow={app.shadow}
-      className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 shadow-none transition-shadow duration-300 hover:scale-105 hover:-translate-y-1"
+      className="group relative aspect-[3/4] overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 shadow-none transition-shadow duration-300 hover:scale-105 hover:-translate-y-1"
     >
-      <Link to={app.route} className="group block h-full w-full">
-        <div className="flex h-full flex-col">
-          <div className="relative aspect-[3/4] w-full overflow-hidden">
-            <img
-              src={app.image}
-              alt={app.name}
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          </div>
-          
-          <div className="flex flex-1 flex-col gap-2 p-4">
-            <h2 className="text-lg font-bold uppercase tracking-wide text-white">
-              {app.name}
-            </h2>
-            <p className="text-sm font-medium leading-relaxed text-gray-400">
-              {app.description}
-            </p>
-          </div>
+      <Link to={app.route} className="block h-full w-full">
+        {/* Image fills entire card */}
+        <img
+          src={app.image}
+          alt={app.name}
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
+        />
+        
+        {/* Gradient overlay for readability */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        
+        {/* Title always visible at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h2 className="text-lg font-bold uppercase tracking-wide text-white">
+            {app.name}
+          </h2>
+        </div>
+        
+        {/* Description slides up on hover */}
+        <div className="absolute bottom-0 left-0 right-0 translate-y-full p-4 backdrop-blur-md bg-zinc-950/70 transition-all duration-300 ease-in-out group-hover:translate-y-0">
+          <h2 className="mb-2 text-lg font-bold uppercase tracking-wide text-white">
+            {app.name}
+          </h2>
+          <p className="text-sm font-medium leading-relaxed text-white">
+            {app.description}
+          </p>
         </div>
       </Link>
     </TiltCard>
