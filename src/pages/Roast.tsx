@@ -331,7 +331,7 @@ export default function Roast() {
           </p>
         </div>
 
-        <AnimatePresence mode="sync">
+        <AnimatePresence mode="wait">
           {status === 'idle' || status === 'error' ? (
             <motion.form
               key="input"

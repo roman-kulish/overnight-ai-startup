@@ -38,6 +38,19 @@ A Cloudflare Workers + React dashboard hosting 4 parody AI apps satirizing the "
 - Tests live next to the code they cover (`*.test.ts`) or in feature-specific `tests/` directories.
 - Use Vitest. Prefer unit tests for pure worker logic (validation, scoring, valuation, formatting) over end-to-end UI tests unless the interaction is the bug-prone part.
 
+## Streaming & SSE Patterns
+
+- **Always add anti-buffering headers** to SSE responses: `cache-control: no-cache, no-transform`, `connection: keep-alive`, `x-accel-buffering: no`. Without these, proxies and dev servers buffer the entire stream before sending.
+- **Use `AnimatePresence mode="sync"`** (not `"wait"`) when transitioning between loading and streaming states. `"wait"` causes a visible delay as the exit animation completes before the enter animation starts.
+- **Wait for metadata before transitioning status.** If your UI depends on metadata (like valuation), don't transition from `loading` to `roasting` on the first token — wait for the metadata event. Otherwise the UI mounts with undefined/zero values.
+- **Use local regex instances in concurrent environments.** Global regex with `lastIndex` state can cause race conditions. Create a new `RegExp` instance per request: `new RegExp(pattern.source, pattern.flags)`.
+
+## UI/UX Patterns
+
+- **Respect `prefers-reduced-motion`** for animations like 3D tilt, parallax, or decorative motion. Use a `useMediaQuery` hook to disable effects.
+- **Avoid transform transitions on mousemove.** Updating `transform` on every mousemove with a CSS transition causes lag. Either use JS-driven transforms (no transition) or CSS transitions only for non-mouse-driven properties like `box-shadow`.
+- **Mobile-first speech bubbles:** Use responsive pointers (upward on mobile, leftward on desktop) to maintain visual connection between avatar and bubble across viewports.
+
 ## Documentation
 
 For deeper context, see the `docs/` directory.

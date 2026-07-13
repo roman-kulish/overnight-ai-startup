@@ -10,22 +10,23 @@ type AppEntry = {
 }
 
 const apps: AppEntry[] = [
-  {
-    name: 'Meditate to Your Shares',
-    description:
-      'Breathe in the unearned wealth, exhale your imposter syndrome. Hyper-sarcastic guided mindfulness tied directly to your portfolio’s volatility.',
-    route: '/meditate',
-    image: '/images/tile-meditate-to-your-shares.png',
-    shadow: '0 0 60px rgba(185, 28, 28, 0.35)',
-  },
-  {
-    name: 'AI Automation Agency Generator',
-    description:
-      'Launch a $10k/mo MRR empire doing absolutely nothing. Generate fake, slop-as-a-service pitch decks for un-monetizable hobbies.',
-    route: '/agency',
-    image: '/images/tile-ai-auto-agency.jpg',
-    shadow: '0 0 60px rgba(139, 92, 246, 0.35), 0 0 80px rgba(6, 182, 212, 0.25)',
-  },
+  // Commented out until ready - enable as each app is implemented
+  // {
+  //   name: 'Meditate to Your Shares',
+  //   description:
+  //     'Breathe in the unearned wealth, exhale your imposter syndrome. Hyper-sarcastic guided mindfulness tied directly to your portfolio's volatility.',
+  //   route: '/meditate',
+  //   image: '/images/tile-meditate-to-your-shares.png',
+  //   shadow: '0 0 60px rgba(185, 28, 28, 0.35)',
+  // },
+  // {
+  //   name: 'AI Automation Agency Generator',
+  //   description:
+  //     'Launch a $10k/mo MRR empire doing absolutely nothing. Generate fake, slop-as-a-service pitch decks for un-monetizable hobbies.',
+  //   route: '/agency',
+  //   image: '/images/tile-ai-auto-agency.jpg',
+  //   shadow: '0 0 60px rgba(139, 92, 246, 0.35), 0 0 80px rgba(6, 182, 212, 0.25)',
+  // },
   {
     name: 'VC Roast Pitch Deck',
     description:
@@ -34,14 +35,14 @@ const apps: AppEntry[] = [
     image: '/images/tile-ace-of-cash.png',
     shadow: '0 0 60px rgba(239, 68, 68, 0.35)',
   },
-  {
-    name: 'Crypto-Astrology Oracle',
-    description:
-      'On-chain data meets 16th-century planetary ephemeris. Find out if Mercury in Retrograde is currently liquidating your bags.',
-    route: '/oracle',
-    image: '/images/tile-crypto-astrology.jpg',
-    shadow: '0 0 60px rgba(99, 102, 241, 0.35)',
-  },
+  // {
+  //   name: 'Crypto-Astrology Oracle',
+  //   description:
+  //     'On-chain data meets 16th-century planetary ephemeris. Find out if Mercury in Retrograde is currently liquidating your bags.',
+  //   route: '/oracle',
+  //   image: '/images/tile-crypto-astrology.jpg',
+  //   shadow: '0 0 60px rgba(99, 102, 241, 0.35)',
+  // },
 ]
 
 function useMediaQuery(query: string): boolean {
@@ -152,7 +153,7 @@ function Dashboard() {
       <section className="mx-auto flex min-h-screen max-w-7xl flex-col gap-10 px-6 py-12">
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Overnight AI Startup
+          Overnight AI Startups
         </h1>
         <p className="mt-3 text-zinc-400">Pick a parody app and disrupt nothing in particular.</p>
       </div>
