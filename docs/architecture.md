@@ -4,7 +4,7 @@ title: "Architecture"
 description: "Cloudflare-first architecture for the Vibe Coding dashboard"
 tags: ["architecture", "cloudflare", "workers", "react"]
 timestamp: 2026-07-12T00:00:00Z
-updated: 2026-07-12T18:45:00Z
+updated: 2026-07-13T13:30:00Z
 ---
 
 # Architecture
@@ -37,8 +37,9 @@ vibe-coding/
 
 Every app is a route in the single-page application. The shared `AppShell` provides:
 
-- A prominent "Return to Dashboard" link at the top
-- A "Buy Me a Coffee" banner at the bottom
+- A prominent "Return to Dashboard" link at the top on every app route.
+- The header is hidden on the Dashboard route itself so the tile grid owns the focus.
+- A global floating "Buy Me a Coffee" button anchored to the bottom-right (centered on mobile).
 
 ## API
 

@@ -6,25 +6,21 @@ function AppShell() {
 
   return (
     <div className="relative min-h-screen bg-night text-foam">
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-panel/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          {isDashboard ? (
-            <span className="text-sm font-semibold tracking-wide text-accent-glow">
-              overnight.ai
-            </span>
-          ) : (
+      {!isDashboard && (
+        <header className="sticky top-0 z-50 border-b border-border/60 bg-panel/80 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link
               to="/"
               className="rounded-lg px-3 py-2 text-sm font-medium text-foam transition hover:bg-accent/10 hover:text-accent-glow"
             >
               Return to Dashboard
             </Link>
-          )}
-          <span className="text-sm font-semibold tracking-wide text-accent-glow">
-            overnight.ai
-          </span>
-        </div>
-      </header>
+            <span className="text-sm font-semibold tracking-wide text-accent-glow">
+              Overnight AI Startup
+            </span>
+          </div>
+        </header>
+      )}
 
       <main>
         <Outlet />
