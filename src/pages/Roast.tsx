@@ -431,7 +431,7 @@ export default function Roast() {
                 <div className="absolute -left-3 top-20 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
                 
                 <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex justify-between items-start w-full">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted">
                         Peak Valuation
