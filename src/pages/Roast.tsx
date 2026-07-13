@@ -257,7 +257,7 @@ export default function Roast() {
             },
             onMeta: (meta) => {
               setResult((prev) => ({
-                text: prev?.text ?? finalTextRef.current,
+                text: prev?.text ?? '',
                 valuation: meta.valuation,
                 stage: meta.stage,
               }))
@@ -427,7 +427,10 @@ export default function Roast() {
 
               {/* Thought Bubble Result */}
               <div className="relative flex-1 w-full">
-                {/* Thought bubble pointer - aligned with avatar's upper chest/mouth area */}
+                {/* Mobile Pointer - Pointing up at the stacked avatar above it */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 block h-6 w-6 rotate-45 border-t border-l border-border/80 bg-panel/95 md:hidden" />
+                
+                {/* Desktop Pointer - Pointing left at the avatar */}
                 <div className="absolute -left-3 top-20 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
                 
                 <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
@@ -437,7 +440,11 @@ export default function Roast() {
                         Peak Valuation
                       </p>
                       <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
-                        <ValuationTicker valuation={result?.valuation ?? 0} />
+                        {result?.valuation !== undefined ? (
+                          <ValuationTicker valuation={result.valuation} />
+                        ) : (
+                          <span className="opacity-50">Calculating...</span>
+                        )}
                       </p>
                       <p className="text-sm font-medium text-foam/80">
                         {result?.stage ? `(${result.stage})` : '—'}

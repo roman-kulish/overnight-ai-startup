@@ -147,8 +147,10 @@ export function countBuzzwords(text: string): number {
   const normalized = text.toLowerCase();
   let count = 0;
 
-  BUZZWORD_RE.lastIndex = 0;
-  while (BUZZWORD_RE.exec(normalized) !== null) {
+  // Create a local, zero-overhead execution instance from the precompiled pattern
+  const localExec = new RegExp(BUZZWORD_RE.source, BUZZWORD_RE.flags);
+  
+  while (localExec.exec(normalized) !== null) {
     count += 1;
   }
 
