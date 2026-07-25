@@ -327,10 +327,10 @@ export default function Roast() {
           </h1>
           {(status === 'idle' || status === 'error') && (
             <p className="mt-3 text-muted">
-              Submit your one-sentence startup pitch below for institutional evaluation. Ensure
-              your submission is heavily optimized with industry-standard terminology and
-              emerging tech jargon. Each buzzword systematically scales your implied baseline
-              valuation by $1,000,000.
+              Submit your one-sentence startup pitch below for institutional evaluation.<br />
+              Ensure your submission is heavily optimized with industry-standard terminology and
+              emerging tech jargon.<br />
+              Each buzzword systematically scales your implied baseline valuation by $1,000,000.
             </p>
           )}
         </div>
@@ -470,7 +470,7 @@ export default function Roast() {
 
                     <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
                       <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-                      <span className="font-medium">Current stage:</span>
+                      <span className="font-medium">Current stage:</span><br />
                       <span className="text-foam">{result?.stage || 'TBD'}</span>
                     </div>
                   </div>

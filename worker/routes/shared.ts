@@ -106,6 +106,7 @@ function createStreamResponse(
 
       try {
         // Write metadata first
+        console.log(`[stream] sending metadata: ${JSON.stringify(meta)}`);
         controller.enqueue(encoder.encode(encodeSSE(meta)));
 
         while (true) {
