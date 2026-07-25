@@ -468,9 +468,11 @@ export default function Roast() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
-                      <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-                      <span className="font-medium">Current stage:</span><br />
+                    <div className="flex flex-col gap-1 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
+                      <div className="flex items-center gap-2">
+                        <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
+                        <span className="font-medium">Current stage:</span>
+                      </div>
                       <span className="text-foam">{result?.stage || 'TBD'}</span>
                     </div>
                   </div>
