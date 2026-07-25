@@ -199,14 +199,12 @@ export function createAIPipelineHandler<TOutput = string>({
       try {
         const meta = await stream.meta(validation.sanitized);
 
-        // Bypass AI Gateway for streaming requests.
-        // The gateway buffers the entire response for caching/logging,
-        // which defeats the purpose of streaming (11s delay observed in production).
-        // Non-streaming requests still go through the gateway for rate limiting,
-        // spend caps, and guardrails.
+        // AI Gateway re-enabled for streaming to preserve rate limiting and budget tracking.
+        // If streaming breaks again, debug by toggling gateway features one by one.
         const aiResponse = await env.AI.run(
           model(env),
           { messages, stream: true } as Record<string, unknown>,
+          { gateway: { id: gateway(env) } },
         );
 
         if (!(aiResponse instanceof ReadableStream)) {

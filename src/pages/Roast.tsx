@@ -38,13 +38,13 @@ function formatValuation(value: number): string {
   })}`
 }
 
-function useCountdown(from: number, duration: number) {
-  const [value, setValue] = useState(from)
+function useCountUp(to: number, duration: number) {
+  const [value, setValue] = useState(0)
   const startRef = useRef<number | null>(null)
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
-    setValue(from)
+    setValue(0)
     startRef.current = null
 
     const step = (timestamp: number) => {
@@ -54,7 +54,7 @@ function useCountdown(from: number, duration: number) {
 
       const elapsed = timestamp - startRef.current
       const progress = Math.min(1, elapsed / duration)
-      const current = Math.max(0, from * (1 - progress))
+      const current = Math.max(0, to * progress)
       setValue(current)
 
       if (progress < 1) {
@@ -69,13 +69,13 @@ function useCountdown(from: number, duration: number) {
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [from, duration])
+  }, [to, duration])
 
   return value
 }
 
 function ValuationTicker({ valuation }: { valuation: number }) {
-  const current = useCountdown(valuation, 2500)
+  const current = useCountUp(valuation, 2500)
   return (
     <span aria-label={`Peak valuation ${formatValuation(valuation)}`}>
       <span className="tabular-nums" aria-hidden="true">
@@ -323,12 +323,16 @@ export default function Roast() {
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 md:py-16">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-foam sm:text-4xl">
-            VC Roast Pitch Deck
+            Venture Capital Roast Deck
           </h1>
-          <p className="mt-3 text-muted">
-            Submit your billion-dollar AI idea. Our general partner will tear it apart in real
-            time.
-          </p>
+          {(status === 'idle' || status === 'error') && (
+            <p className="mt-3 text-muted">
+              Submit your one-sentence startup pitch below for institutional evaluation. Ensure
+              your submission is heavily optimized with industry-standard terminology and
+              emerging tech jargon. Each buzzword systematically scales your implied baseline
+              valuation by $1,000,000.
+            </p>
+          )}
         </div>
 
         <AnimatePresence mode="wait">
@@ -358,7 +362,7 @@ export default function Roast() {
                   id="pitch"
                   value={pitch}
                   onChange={(e) => setPitch(e.target.value)}
-                  placeholder="An AI that reminds me to drink water."
+                  placeholder="Powdered water: a B2C Solute-as-a-Service platform requiring zero initial hydration infrastructure."
                   rows={5}
                   maxLength={500}
                   className="w-full resize-none rounded-2xl border border-border bg-night/60 p-4 text-foam placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
@@ -419,7 +423,7 @@ export default function Roast() {
               {/* CEO Avatar - 2x larger and aligned with thought bubble */}
               <div className="flex-shrink-0 md:pt-8">
                 <img
-                  src="/images/ceo-persona.png"
+                  src="/images/ceo-persona.jpg"
                   alt="Virtual VC Partner"
                   className="w-96 md:w-[28rem] h-auto object-contain drop-shadow-[0_0_40px_rgba(0,0,0,0.6)]"
                 />
@@ -434,21 +438,34 @@ export default function Roast() {
                 <div className="absolute -left-3 top-16 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
 
                 <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
-                  <div className="flex justify-between items-start w-full">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                        Peak Valuation
-                      </p>
-                      <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
-                        {result?.valuation !== undefined ? (
-                          <ValuationTicker valuation={result.valuation} />
-                        ) : (
-                          <span className="opacity-50">Calculating...</span>
-                        )}
-                      </p>
-                      <p className="text-sm font-medium text-foam/80">
-                        {result?.stage ? `(${result.stage})` : '—'}
-                      </p>
+                  <div className="flex justify-between items-start w-full gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-6">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                          Initial Valuation
+                        </p>
+                        <p className="text-xl font-bold tabular-nums text-foam/60 sm:text-2xl">
+                          $0.00
+                        </p>
+                      </div>
+
+                      <div className="hidden sm:block text-2xl text-danger">→</div>
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                          Peak Valuation
+                        </p>
+                        <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
+                          {result?.valuation !== undefined ? (
+                            <ValuationTicker valuation={result.valuation} />
+                          ) : (
+                            <span className="opacity-50">Calculating...</span>
+                          )}
+                        </p>
+                        <p className="text-sm font-medium text-foam/80">
+                          {result?.stage ? `(${result.stage})` : '—'}
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">

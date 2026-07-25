@@ -32,7 +32,7 @@ const apps: AppEntry[] = [
     description:
       "Pitch your 'unicorn'. Get brutally dismantled by a soulless AI venture capitalist. Watch your valuation bleed to zero in real-time.",
     route: '/roast',
-    image: '/images/tile-ace-of-cash.png',
+    image: '/images/tile-ace-of-cash.jpg',
     shadow: '0 0 60px rgba(239, 68, 68, 0.35)',
   },
   // {
