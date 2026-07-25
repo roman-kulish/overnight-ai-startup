@@ -1,5 +1,18 @@
 # Log
 
+## 2026-07-25
+
+- **VC Roast valuation UI polish**
+  - Relabeled the valuation card: left shows static **"Hype Valuation"** (the computed number), right shows **"Implied Valuation"** ticking down to `$0.00`
+  - Replaced the `→` arrow between the two values with a `TrendingDown` crash icon
+  - Made the "Current stage" badge a single line (removed the line break between label and stage)
+  - Replaced `useCountUp` with `useCountdown` for the implied valuation animation
+- **Re-enabled AI Gateway for streaming**
+  - Disabling the gateway's response filtering (cache collection) lets the streaming response pass through unbuffered while keeping rate limits, spend caps, and guardrails active
+  - `env.AI.run()` now passes `{ gateway: { id: ... } }` for both streaming and non-streaming requests
+  - Updated `docs/apps/vc-roast.md`, `AGENTS.md`, and this log to reflect the corrected guidance
+- All tests, lint, and typecheck pass
+
 ## 2026-07-13
 
 - **Dashboard redesign**: arcade-style card grid with 3D tilt effects

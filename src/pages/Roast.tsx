@@ -38,13 +38,13 @@ function formatValuation(value: number): string {
   })}`
 }
 
-function useCountUp(to: number, duration: number) {
-  const [value, setValue] = useState(0)
+function useCountdown(from: number, duration: number) {
+  const [value, setValue] = useState(from)
   const startRef = useRef<number | null>(null)
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
-    setValue(0)
+    setValue(from)
     startRef.current = null
 
     const step = (timestamp: number) => {
@@ -54,7 +54,7 @@ function useCountUp(to: number, duration: number) {
 
       const elapsed = timestamp - startRef.current
       const progress = Math.min(1, elapsed / duration)
-      const current = Math.max(0, to * progress)
+      const current = Math.max(0, from * (1 - progress))
       setValue(current)
 
       if (progress < 1) {
@@ -69,15 +69,15 @@ function useCountUp(to: number, duration: number) {
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [to, duration])
+  }, [from, duration])
 
   return value
 }
 
 function ValuationTicker({ valuation }: { valuation: number }) {
-  const current = useCountUp(valuation, 2500)
+  const current = useCountdown(valuation, 2500)
   return (
-    <span aria-label={`Peak valuation ${formatValuation(valuation)}`}>
+    <span aria-label={`Implied valuation crashing from ${formatValuation(valuation)} to $0.00`}>
       <span className="tabular-nums" aria-hidden="true">
         {formatValuation(current)}
       </span>
@@ -325,6 +325,9 @@ export default function Roast() {
           <h1 className="text-3xl font-bold tracking-tight text-foam sm:text-4xl">
             Venture Capital Roast Deck
           </h1>
+          <p className="mt-2 text-sm font-medium uppercase tracking-widest text-accent sm:text-base">
+            Every buzzword pumps the hype. The implied valuation tells the truth.
+          </p>
           {(status === 'idle' || status === 'error') && (
             <p className="mt-3 text-muted">
               Submit your one-sentence startup pitch below for institutional evaluation.<br />
@@ -423,7 +426,7 @@ export default function Roast() {
               {/* CEO Avatar - 2x larger and aligned with thought bubble */}
               <div className="flex-shrink-0 md:pt-8">
                 <img
-                  src="/images/ceo-persona.jpg"
+                  src="/images/ceo-persona.png"
                   alt="Virtual VC Partner"
                   className="w-96 md:w-[28rem] h-auto object-contain drop-shadow-[0_0_40px_rgba(0,0,0,0.6)]"
                 />
@@ -438,42 +441,33 @@ export default function Roast() {
                 <div className="absolute -left-3 top-16 hidden h-6 w-6 rotate-45 border-b border-l border-border/80 bg-panel/95 md:block" />
 
                 <div className="rounded-3xl border border-border/80 bg-panel/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-8">
-                  <div className="flex justify-between items-start w-full gap-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-6">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                          Initial Valuation
-                        </p>
-                        <p className="text-xl font-bold tabular-nums text-foam/60 sm:text-2xl">
-                          $0.00
-                        </p>
-                      </div>
-
-                      <div className="hidden sm:block text-2xl text-danger">→</div>
-
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                          Peak Valuation
-                        </p>
-                        <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
-                          {result?.valuation !== undefined ? (
-                            <ValuationTicker valuation={result.valuation} />
-                          ) : (
-                            <span className="opacity-50">Calculating...</span>
-                          )}
-                        </p>
-                        <p className="text-sm font-medium text-foam/80">
-                          {result?.stage ? `(${result.stage})` : '—'}
-                        </p>
-                      </div>
+                  <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-8">
+                    <div className="text-center sm:text-left">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                        Hype Valuation
+                      </p>
+                      <p className="text-3xl font-black tabular-nums text-accent drop-shadow-[0_0_10px_rgba(139,92,246,0.5)] sm:text-4xl">
+                        {result?.valuation !== undefined ? formatValuation(result.valuation) : '—'}
+                      </p>
                     </div>
 
-                    <div className="flex flex-col gap-1 rounded-xl bg-night/60 px-4 py-3 text-sm text-muted">
-                      <div className="flex items-center gap-2">
-                        <TrendingDown className="h-4 w-4 text-danger" aria-hidden="true" />
-                        <span className="font-medium">Current stage:</span>
-                      </div>
-                      <span className="text-foam">{result?.stage || 'TBD'}</span>
+                    <TrendingDown className="hidden h-8 w-8 text-danger sm:block" aria-hidden="true" />
+
+                    <div className="text-center sm:text-left">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                        Implied Valuation
+                      </p>
+                      <p className="animate-neon text-3xl font-black tabular-nums text-danger sm:text-4xl">
+                        {result?.valuation !== undefined ? (
+                          <ValuationTicker valuation={result.valuation} />
+                        ) : (
+                          <span className="opacity-50">Calculating...</span>
+                        )}
+                      </p>
+                      <p className="mt-1 text-sm text-muted">
+                        <span className="font-medium">Current stage:</span>{' '}
+                        <span className="text-foam">{result?.stage || 'TBD'}</span>
+                      </p>
                     </div>
                   </div>
 

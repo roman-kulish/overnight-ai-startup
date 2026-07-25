@@ -41,11 +41,11 @@ The UI animates the `valuation` down to `$0.00` while the roast streams in a spe
 
 1. Validate and sanitize the pitch.
 2. Run prompt-injection detection.
-3. Call Workers AI with `stream: true` **bypassing the AI Gateway** (the gateway buffers the entire response for caching/logging, which breaks streaming).
+3. Call Workers AI with `stream: true` **through the AI Gateway** with response filtering (`request.skip_cache`, `request.collect_on_stream_failure`) disabled. Disabling the gateway's response buffering/cache collection is what lets the streaming response pass through unbuffered.
 4. The worker streams token events to the client and computes deterministic fake valuation from Silicon Valley buzzword / cliché count up front.
 5. Return `{ ok: true, roast: { text, valuation, stage } }` when not streaming; otherwise emit a Server-Sent Events stream.
 
-> **Note:** Non-streaming requests still go through the AI Gateway for rate limiting, spend caps, and guardrails. Streaming requests bypass the gateway because it does not support streaming passthrough.
+> **Note:** Both streaming and non-streaming requests go through the AI Gateway for rate limiting, spend caps, and guardrails. Streaming works as long as the gateway's response filtering (cache collection) is disabled so it does not buffer the entire response.
 
 ### Valuation logic
 
@@ -63,7 +63,7 @@ Dark-mode pitch deck layout with:
 - A centered pitch-deck input card.
 - 11-stage loading sequence ("Analyzing Pitch...", "Evaluating TAM...", etc.).
 - Streaming roast text inside a speech bubble attached to a CEO / VC persona character (hidden on mobile).
-- Neon-red pulsing valuation display that ticks down from the peak valuation to `$0.00`.
+- Two large valuation displays side by side with a `TrendingDown` crash icon between them: a static accent-purple **"Hype Valuation"** (the computed number) on the left, and a neon-red pulsing **"Implied Valuation"** on the right that ticks down from the hype valuation to `$0.00`, with the **"Current stage"** shown as a third row underneath the implied valuation.
 - A global floating "Buy Me a Coffee" button in the bottom-right (centered on mobile).
 
 Tests live next to the handler in `worker/routes/roast.test.ts`.

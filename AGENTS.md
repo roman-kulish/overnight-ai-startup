@@ -42,7 +42,7 @@ A Cloudflare Workers + React dashboard hosting 4 parody AI apps satirizing the "
 ## Streaming & SSE Patterns
 
 - **Always add anti-buffering headers** to SSE responses: `cache-control: no-cache, no-transform`, `connection: keep-alive`, `x-accel-buffering: no`. Without these, proxies and dev servers buffer the entire stream before sending.
-- **AI Gateway buffers streaming responses.** The Cloudflare AI Gateway collects the entire response for caching/logging before returning it — observed 11s delay in production. Bypass the gateway for streaming requests by omitting `{ gateway: { id: ... } }` from `env.AI.run()`. Non-streaming requests still go through the gateway for rate limits, spend caps, and guardrails.
+- **AI Gateway can buffer streaming responses.** By default the Cloudflare AI Gateway collects the entire response for caching/logging before returning it — observed 11s delay in production. Disabling the gateway's response filtering (cache collection) lets the streaming response pass through unbuffered while keeping rate limits, spend caps, and guardrails active. Keep `{ gateway: { id: ... } }` on `env.AI.run()` for both streaming and non-streaming requests; just ensure the gateway's response filtering is off.
 - **Use `ReadableStream` not `TransformStream` for SSE.** Multi-layer Response wrapping (TransformStream → pump → writer → Response) causes Cloudflare Workers to buffer the entire stream. Create a `ReadableStream` directly with a `start()` method that enqueues chunks via `controller.enqueue()`.
 - **Use `AnimatePresence mode="sync"`** (not `"wait"`) when transitioning between loading and streaming states. `"wait"` causes a visible delay as the exit animation completes before the enter animation starts.
 - **Wait for metadata before transitioning status.** If your UI depends on metadata (like valuation), don't transition from `loading` to `roasting` on the first token — wait for the metadata event. Otherwise the UI mounts with undefined/zero values.
@@ -62,7 +62,7 @@ For deeper context, see the `docs/` directory.
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **overnight-ai-startup** (206 symbols, 317 relationships, 6 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **overnight-ai-startup** (251 symbols, 400 relationships, 8 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -70,8 +70,6 @@ This project is indexed by GitNexus as **overnight-ai-startup** (206 symbols, 31
 
 - **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
 - **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
-- **MUST run a code review before committing.** Use the `@code-reviewer` subagent (or equivalent) on any non-trivial change, address blocking issues, and summarize the review to the user.
-- **MUST keep the docs bundle in sync.** When a code change affects architecture, behavior, or UI, update the relevant `docs/` OKF files and validate with the OKF skill (`/okf-validate docs --strict`).
 - **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
 - When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
 - When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
