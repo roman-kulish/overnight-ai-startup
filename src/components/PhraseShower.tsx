@@ -35,8 +35,8 @@ export function PhraseShower({ phrases, phase }: Props) {
 
   return (
     <div
-      className="mx-auto mb-6 flex w-full max-w-xl items-center justify-center px-4 text-center md:mb-8"
-      style={{ minHeight: '60px' }}
+      className="mx-auto mb-2 flex w-full max-w-xl items-center justify-center px-4 text-center"
+      style={{ minHeight: '56px' }}
       aria-live="polite"
       aria-atomic="true"
     >
@@ -58,7 +58,7 @@ export function PhraseShower({ phrases, phase }: Props) {
             y: -10,
             transition: { duration: OUT_DURATION, ease: 'easeIn' },
           }}
-          className="font-serif text-xl font-medium leading-relaxed tracking-wide text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] md:text-2xl"
+          className="font-serif text-2xl font-medium leading-relaxed tracking-wide text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] md:text-3xl"
         >
           {phrases[phraseIndex]}
         </motion.div>

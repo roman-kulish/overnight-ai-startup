@@ -240,7 +240,7 @@ function EndCard({
       <button
         type="button"
         onClick={onBeginAnother}
-        className="mt-2 w-full rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
+        className="mt-2 w-full cursor-pointer rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
       >
         Begin another ticker
       </button>
@@ -479,8 +479,8 @@ export default function Meditate() {
           : undefined
       }
     >
-      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-64px)] max-w-6xl flex-col items-center justify-center gap-12 px-6 py-12">
-        <div className="text-center">
+      <div className="relative z-10 -mt-4 mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-4xl flex-col items-center justify-center gap-4 px-4 py-4 text-center">
+        <div className="mt-2 mb-4 text-center">
           <h1 className="font-serif text-xl font-light uppercase tracking-[0.25em] text-amber-100/60 md:text-2xl">
             Meditate to Your Shares
           </h1>
