@@ -1,16 +1,17 @@
-// Inline SVG sparkline of the last ~21 daily closes. Animates on each new
-// series with a 0.6s stroke-dasharray draw-in.
+// Inline SVG sparkline of the last ~21 daily closes. Animates on each
+// new series with a 0.6s stroke-dasharray draw-in. Stroke colour is
+// driven by the parent via `currentColor` (the default emerald-300/70
+// gives a soft, readable trace across all bhāvas).
 
 import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   data: number[]
-  color?: string
   height?: number
   className?: string
 }
 
-export function Sparkline({ data, color = '#fbbf24', height = 36, className }: Props) {
+export function Sparkline({ data, height = 36, className }: Props) {
   const pathRef = useRef<SVGPathElement | null>(null)
   const [pathLength, setPathLength] = useState(0)
 
@@ -26,7 +27,7 @@ export function Sparkline({ data, color = '#fbbf24', height = 36, className }: P
     void path.getBoundingClientRect()
     path.style.transition = 'stroke-dashoffset 0.6s ease-out'
     path.style.strokeDashoffset = '0'
-  }, [data, color])
+  }, [data])
 
   if (data.length < 2) return null
 
@@ -50,7 +51,7 @@ export function Sparkline({ data, color = '#fbbf24', height = 36, className }: P
     <svg
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="none"
-      className={className}
+      className={`flex-1 text-emerald-300/70 ${className ?? ''}`}
       style={{ width: '100%', height }}
       aria-hidden="true"
     >
@@ -58,11 +59,10 @@ export function Sparkline({ data, color = '#fbbf24', height = 36, className }: P
         ref={pathRef}
         d={pathD}
         fill="none"
-        stroke={color}
-        strokeWidth={1.25}
+        stroke="currentColor"
+        strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity={0.55}
       />
       {pathLength > 0 && (
         <style>{`path { stroke-dasharray: ${pathLength}; }`}</style>

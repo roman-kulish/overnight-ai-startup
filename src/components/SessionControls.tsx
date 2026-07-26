@@ -1,11 +1,8 @@
-// Session controls row.
+// Session controls: Mute toggle + End Session, fixed at bottom-left.
 //
-// Layout: both buttons sit together on the left side of the row, in
-// document flow (not fixed) so the row stays above the AppShell footer
-// and the Buy Me a Coffee button.
-//
-// Sound button: icon-only circle.
-// End Session: icon + label.
+// The breath pace indicator lives in its own component
+// (BreathPhaseIndicator) at the bottom-centre, and the Buy Me a Coffee
+// button is at the bottom-right in AppShell.
 
 import { CircleStop, Volume2, VolumeX } from 'lucide-react'
 
@@ -18,7 +15,7 @@ type Props = {
 export function SessionControls({ muted, onToggleMute, onEnd }: Props) {
   return (
     <div
-      className="flex w-full items-center justify-start gap-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2"
+      className="fixed bottom-6 left-6 z-30 flex items-center gap-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       role="toolbar"
       aria-label="Session controls"
     >

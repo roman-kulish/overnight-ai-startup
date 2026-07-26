@@ -20,8 +20,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, Sparkles } from 'lucide-react'
 import { BreathingOrb } from '../components/BreathingOrb'
+import { BreathPhaseIndicator } from '../components/BreathPhaseIndicator'
+import { BhavaLabel } from '../components/BhavaLabel'
+import { DurationTimer } from '../components/DurationTimer'
 import { PhraseShower } from '../components/PhraseShower'
 import { SessionControls } from '../components/SessionControls'
+import { getBhavaColors } from '../bhava-colors'
 import { pickTrackIndex, MUSIC_CREDIT, MUSIC_SOURCES } from '../audio/credits'
 import {
   isSfxMuted,
@@ -91,7 +95,7 @@ function LoadingStepper({ stepIndex }: StepperProps) {
         <p className="font-cinzel text-base uppercase tracking-[0.3em] text-foam">
           {LOADING_STEPS[stepIndex]}
         </p>
-        <div className="h-1 w-64 max-w-full overflow-hidden rounded-full bg-border">
+        <div className="mx-auto h-1 w-64 max-w-full overflow-hidden rounded-full bg-border">
           <motion.div
             className="h-full bg-accent"
             initial={{ width: 0 }}
@@ -477,11 +481,11 @@ export default function Meditate() {
     >
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-64px)] max-w-6xl flex-col items-center justify-center gap-12 px-6 py-12">
         <div className="text-center">
-          <h1 className="font-cinzel text-3xl font-semibold uppercase tracking-[0.3em] text-foam sm:text-4xl">
+          <h1 className="font-serif text-xl font-light uppercase tracking-[0.25em] text-amber-100/60 md:text-2xl">
             Meditate to Your Shares
           </h1>
           {(status === 'idle' || status === 'loading') && (
-            <p className="mt-3 text-sm italic text-muted">
+            <p className="mt-3 font-serif text-base italic text-muted sm:text-lg">
               A mindfulness practice for the financially devastated.
             </p>
           )}
@@ -541,29 +545,34 @@ export default function Meditate() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex w-full flex-1 flex-col items-center justify-center gap-8"
+              className="relative z-10 mx-auto flex min-h-screen w-full flex-col items-center justify-center px-4 text-center"
             >
-              <div className="relative flex flex-1 items-center justify-center">
-                <BreathingOrb
-                  quote={activeQuote}
-                  stale={stale}
-                  phase={phase}
-                  durationMs={sessionStartRef.current ? Date.now() - sessionStartRef.current : 0}
-                  enabled
-                  onPhaseEnter={(p) => {
-                    setPhase(p)
-                    if (p === 'in') playInhaleGong()
-                    else if (p === 'out') playExhaleChime()
-                  }}
-                />
-                <PhraseShower phrases={sessionPhrases} />
-              </div>
-              <SessionControls
-                muted={muted}
-                onToggleMute={handleToggleMute}
-                onEnd={handleEnd}
+              <PhraseShower phrases={sessionPhrases} phase={phase} />
+              <BhavaLabel
+                display={getBhavaColors(activeQuote.bhava).display}
+                translation={getBhavaColors(activeQuote.bhava).translation}
               />
+              <BreathingOrb
+                quote={activeQuote}
+                stale={stale}
+                enabled
+                onPhaseEnter={(p) => {
+                  setPhase(p)
+                  if (p === 'in') playInhaleGong()
+                  else if (p === 'out') playExhaleChime()
+                }}
+              />
+              <DurationTimer startMs={sessionStartRef.current} />
+              <BreathPhaseIndicator phase={phase} />
             </motion.div>
+          )}
+
+          {meditating && (
+            <SessionControls
+              muted={muted}
+              onToggleMute={handleToggleMute}
+              onEnd={handleEnd}
+            />
           )}
 
           {status === 'ended' && meditation && (

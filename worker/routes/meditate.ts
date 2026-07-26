@@ -278,7 +278,9 @@ export function buildMeditateMessages(envelope: QuoteEnvelope): ChatMessage[] {
   return [
     {
       role: 'system',
-      content: `You are a dry, sardonic mindfulness instructor. Generate exactly 6 short meditation phrases (6-14 words each) for someone whose stock or crypto portfolio is fluctuating. Use the provided market context as an allegory, not as the topic.
+      content: `You are a dry, sardonic mindfulness instructor. Generate exactly 6 short meditation phrases (6-10 words each) for someone whose stock or crypto portfolio is fluctuating. Use the provided market context as an allegory, not as the topic.
+
+Each phrase MUST be between 6 and 10 words maximum. Never exceed 10 words per phrase.
 
 Format: output only the 6 phrases, each on its own line, each starting with "PHRASE:". Do not output JSON, prose, or conversational intro.
 

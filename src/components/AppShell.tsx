@@ -46,7 +46,7 @@ function AppShell() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Buy Me a Coffee"
-        className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 md:bottom-8 md:left-auto md:right-8 md:translate-x-0"
+        className="fixed bottom-6 right-6 z-30"
       >
         <img
           src="/images/bmc-yellow-button.png"
