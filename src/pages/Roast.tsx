@@ -379,7 +379,7 @@ export default function Roast() {
               <button
                 type="submit"
                 disabled={!pitch.trim()}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-danger px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-danger/25 transition hover:-translate-y-0.5 hover:bg-danger/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                className="mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-danger px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-danger/25 transition hover:-translate-y-0.5 hover:bg-danger/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
               >
                 <Flame className="h-4 w-4" aria-hidden="true" />
                 Roast my pitch
@@ -489,7 +489,7 @@ export default function Roast() {
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
+                      className="mt-8 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-border bg-panel px-6 py-3 text-sm font-semibold text-foam transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/5"
                     >
                       <RefreshCcw className="h-4 w-4" aria-hidden="true" />
                       Roast another idea
