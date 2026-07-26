@@ -479,9 +479,15 @@ export default function Meditate() {
           : undefined
       }
     >
-      <div className="relative z-10 -mt-4 mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-4xl flex-col items-center justify-center gap-4 px-4 py-4 text-center">
+      <div
+        className={
+          meditating
+            ? 'relative z-10 -mt-8 mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-start px-4 pt-16 pb-24 text-center'
+            : 'relative z-10 mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center px-4 py-12 text-center'
+        }
+      >
         <div className="mt-2 mb-4 text-center">
-          <h1 className="font-serif text-xl font-light uppercase tracking-[0.25em] text-amber-100/60 md:text-2xl">
+          <h1 className="font-serif text-xl font-light uppercase tracking-[0.25em] text-amber-100/60 md:text-3xl">
             Meditate to Your Shares
           </h1>
           {(status === 'idle' || status === 'loading') && (
@@ -545,7 +551,7 @@ export default function Meditate() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6 }}
-              className="relative z-10 mx-auto flex min-h-screen w-full flex-col items-center justify-center px-4 text-center"
+              className="relative z-10 mt-12 mx-auto flex min-h-screen w-full flex-col items-center justify-start px-4 text-center"
             >
               <PhraseShower phrases={sessionPhrases} phase={phase} />
               <BhavaLabel

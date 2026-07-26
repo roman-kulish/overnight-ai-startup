@@ -24,7 +24,7 @@ export function DurationTimer({ startMs }: { startMs: number | null }) {
 
   return (
     <div
-      className="mt-2 mb-1 font-mono text-sm font-semibold tracking-widest text-zinc-300/90 drop-shadow-md"
+      className="mt-8 mb-1 font-mono text-sm font-semibold tracking-widest text-zinc-300/90 drop-shadow-md"
       aria-label="Session duration"
     >
       {formatDuration(durationMs)}
