@@ -43,7 +43,7 @@ Every app is a route in the single-page application. The shared `AppShell` provi
 
 ## API
 
-Each app calls a dedicated Worker endpoint. The Worker is responsible for:
+Each app calls one or more dedicated Worker endpoints. The Worker is responsible for:
 
 1. Validating the request
 2. Checking for prompt injection
@@ -51,7 +51,19 @@ Each app calls a dedicated Worker endpoint. The Worker is responsible for:
 4. Calling the LLM through the appropriate AI Gateway
 5. Returning the generated content
 
-Routes use a shared factory, `createAIPipelineHandler`, in `worker/routes/shared.ts`. Each app supplies its own model binding, gateway name, prompt builder, and optional response transform. Every successful response uses a semantic key that matches the app (`roast`, `oracle`, etc.) so the contract stays obvious.
+Routes that fit a "single LLM call on every request" pattern use a shared factory, `createAIPipelineHandler`, in `worker/routes/shared.ts`. Each app supplies its own model binding, gateway name, prompt builder, and optional response transform. Every successful response uses a semantic key that matches the app (`roast`, `oracle`, etc.) so the contract stays obvious.
+
+### Apps with bespoke handlers
+
+Some apps don't fit the single-call pattern — for example, Meditate to Your Shares has:
+
+- Two endpoints (`/api/meditate` for the LLM-cached phrase pool, `/api/meditate/quote` for fast 15s quote polling)
+- A regex-based ticker validator that doesn't match the shared `validateInput` length-based shape
+- Cloudflare KV caching of both quotes (30s TTL) and LLM-generated phrases (2h TTL)
+- An upstream Yahoo Finance subrequest before any LLM call
+- A `PHRASE:`-delimited LLM output that needs a custom parser
+
+These endpoints reuse the shared helpers (`jsonResponse`, `parseJson`, `detectInjection`) but live in `worker/routes/meditate.ts` and `worker/routes/meditate-quote.ts` instead of going through the factory. The factory stays untouched so the simpler apps (roast, agency, oracle) keep working.
 
 ### Response envelope
 

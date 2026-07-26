@@ -78,6 +78,19 @@ wrangler secret put AI_GATEWAY_VC_ROAST
 wrangler secret put AI_GATEWAY_ORACLE
 ```
 
+### 3a. Create KV namespaces (Meditate only)
+
+The Meditate app uses two Cloudflare KV namespaces to bound LLM cost (a 30s quote cache and a 2h phrase cache). Create them once and wire the IDs into `wrangler.jsonc`:
+
+```bash
+wrangler kv namespace create QUOTE_CACHE
+wrangler kv namespace create PHRASE_CACHE
+# Paste the returned IDs into the kv_namespaces block of wrangler.jsonc, then:
+wrangler types
+```
+
+For local dev, setting `"remote": true` on each namespace makes the dev Worker talk to the same KV as production — no separate local seed step.
+
 ### 4. Deploy
 
 ```bash

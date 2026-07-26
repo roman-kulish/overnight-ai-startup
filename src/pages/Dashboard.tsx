@@ -11,14 +11,22 @@ type AppEntry = {
 
 const apps: AppEntry[] = [
   // Commented out until ready - enable as each app is implemented
-  // {
-  //   name: 'Meditate to Your Shares',
-  //   description:
-  //     'Breathe in the unearned wealth, exhale your imposter syndrome. Hyper-sarcastic guided mindfulness tied directly to your portfolio's volatility.',
-  //   route: '/meditate',
-  //   image: '/images/tile-meditate-to-your-shares.png',
-  //   shadow: '0 0 60px rgba(185, 28, 28, 0.35)',
-  // },
+  {
+    name: 'Venture Capital Roast Deck',
+    description:
+      "Pitch your 'unicorn'. Get brutally dismantled by a soulless AI venture capitalist. Watch your valuation bleed to zero in real-time.",
+    route: '/roast',
+    image: '/images/tile-ace-of-cash.jpg',
+    shadow: '0 0 60px rgba(239, 68, 68, 0.35)',
+  },
+  {
+    name: 'Meditate to Your Shares',
+    description:
+      'Breathe in the unearned wealth, exhale your imposter syndrome. Hyper-sarcastic guided mindfulness tied directly to your portfolio\'s volatility.',
+    route: '/meditate',
+    image: '/images/tile-meditate-to-your-shares.jpg',
+    shadow: '0 0 60px rgba(185, 28, 28, 0.35)',
+  },
   // {
   //   name: 'AI Automation Agency Generator',
   //   description:
@@ -27,14 +35,6 @@ const apps: AppEntry[] = [
   //   image: '/images/tile-ai-auto-agency.jpg',
   //   shadow: '0 0 60px rgba(139, 92, 246, 0.35), 0 0 80px rgba(6, 182, 212, 0.25)',
   // },
-  {
-    name: 'VC Roast Pitch Deck',
-    description:
-      "Pitch your 'unicorn'. Get brutally dismantled by a soulless AI venture capitalist. Watch your valuation bleed to zero in real-time.",
-    route: '/roast',
-    image: '/images/tile-ace-of-cash.jpg',
-    shadow: '0 0 60px rgba(239, 68, 68, 0.35)',
-  },
   // {
   //   name: 'Crypto-Astrology Oracle',
   //   description:
@@ -139,7 +139,7 @@ function AppCard({ app }: { app: AppEntry }) {
           <h2 className="text-lg font-bold uppercase tracking-wide text-white">
             {app.name}
           </h2>
-          <p className="text-base font-normal leading-relaxed text-rose-300">
+          <p className="text-base font-normal leading-relaxed text-zinc-300">
             {app.description}
           </p>
         </div>

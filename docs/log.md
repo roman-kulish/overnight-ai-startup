@@ -1,5 +1,29 @@
 # Log
 
+## 2026-07-26
+
+- **Meditate to Your Shares** end-to-end
+  - Two-endpoint Worker API: `POST /api/meditate` (LLM-on-cache-miss) and `POST /api/meditate/quote` (KV-only). Both KV-cached (30s quote, 2h phrases) to bound LLM cost. Yahoo Finance v8 chart as the live data source; deterministic bhāva/breath-cycle/volatility computed in the Worker.
+  - 108-phrase static library in `worker/routes/meditate-static-phrases.ts` (18 per bhāva, 6 bhāvas, liturgical flavor comments). LLM contributes 6 dynamic phrases per `(ticker, bhāva)` using a `PHRASE:`-delimited output with parser-side padding to 6.
+  - Glassmorphic breathing orb in `src/components/BreathingOrb.tsx` with a 60fps `requestAnimationFrame` loop writing `--orb-scale` and `--orb-glow` directly to the DOM (no React re-render). Phrases orbit in a 6-slot hex pattern on desktop, single column on mobile.
+  - Web Audio API for SFX (procedural — no audio files). Music attribution to Uppbeat shown in end-session card and idle-view footer.
+  - **Spec deviation**: built bespoke handlers instead of extending `createAIPipelineHandler`. The factory assumes single-string `input` + single LLM call + no KV/upstream fetch; meditate's flow (ticker regex, two KV namespaces, Yahoo fetch, conditional LLM, PHRASE-delimited parser, `lastBhava` field) doesn't fit. The shared helpers (`jsonResponse`, `parseJson`, `detectInjection`) are reused; the factory is untouched to protect the working roast/oracle/agency routes.
+  - Tests: `worker/routes/meditate.test.ts` — 52 unit tests covering all pure logic + endpoint behaviour (validation, prompt-injection rejection, KV hit/miss, LLM call/no-call, Yahoo error paths, banned-words check, deterministic seed shuffle). 77/77 tests pass across the suite.
+  - Dashboard tile uncommented (also fixed the `.png` → `.jpg` extension mismatch). Installed `@fontsource/cinzel @fontsource/jetbrains-mono`. Added bhāva color tokens and a `bg-mystic-radial` background utility to `index.css`.
+  - `wrangler.jsonc` updated with `kv_namespaces` (real IDs, see below). `worker-configuration.d.ts` has the `QUOTE_CACHE` / `PHRASE_CACHE` bindings.
+  - **KV namespaces live**: `QUOTE_CACHE` = `6ddba1364a3c4237a6bd2a1beac94ec8`, `PHRASE_CACHE` = `7fa8fdc018ea4aa8807727121430150b`. Local dev uses `remote: true` so it talks to the same KV the production Worker uses — no local seed step.
+  - All typecheck, lint, test, and build pass.
+
+- **Bug fixes from production smoke test**
+  - **KV TTL minimum**: Cloudflare KV's `expirationTtl` floor is 60s, not 30s. Bumped `QUOTE_CACHE_TTL_SECONDS` from 30 to 60. The spec's 30s target is a soft preference; KV enforces 60s. The client still benefits: cache hits cap Yahoo at ~1 call per ticker per minute per user.
+  - **Music not playing**: `useAmbientAudio` previously created the `<audio>` element in a `useEffect` gated on `status === 'meditating'`, but `ambient.begin()` was called from the user-gesture click handler while `status === 'loading'`. The effect runs after the click handler returns, by which time the autoplay user-gesture chain has ended and the browser blocks `.play()`. Refactored the hook to a synchronous `begin(src)` that creates the audio element and starts playback in one call from inside the gesture handler. The audio now plays during both loading and meditating, matching the spec.
+  - All typecheck, lint, test, and build pass.
+
+- **Docs updates**
+  - `docs/architecture.md` — added a section explaining the bespoke-handler pattern for apps that don't fit `createAIPipelineHandler`, with Meditate as the canonical example.
+  - `docs/security.md` — corrected the Meditate validation rule from "max 50 characters" to the actual regex `^[A-Z0-9-]{1,10}$`.
+  - `docs/deployment.md` — added a `3a. Create KV namespaces` step between env vars and deploy.
+
 ## 2026-07-25
 
 - **VC Roast valuation UI polish**

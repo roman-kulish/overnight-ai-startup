@@ -59,10 +59,12 @@ Cloudflare Turnstile appears after a threshold of rapid requests from the same I
 
 ## Validation rules
 
-- **Meditate**: ticker symbol, max 50 characters
+- **Meditate**: ticker symbol, regex `^[A-Z0-9-]{1,10}$` (uppercased, allows `-` for crypto/BRK-style tickers). Up to 10 characters.
 - **Agency**: hobby description, max 200 characters
 - **VC Roast**: idea pitch, max 500 characters
 - **Oracle**: zodiac + crypto, max 100 characters
+
+The Meditate regex also implicitly catches prompt-injection attempts (no whitespace, no special characters beyond `-`), so the secondary injection-pattern check is defence-in-depth.
 
 ## Related
 
