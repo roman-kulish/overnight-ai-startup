@@ -28,7 +28,7 @@ function AppShell() {
       </main>
 
       <footer className="border-t border-border/60 bg-panel/40 pb-20 pt-6 md:pb-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 text-center text-xs text-muted">
+        <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 text-center text-sm text-muted sm:text-base">
           <a
             href="https://medium.com/@roman.kulish/mortgage-vs-the-machine-inside-the-youtube-overnight-ai-startup-grift-8b3833f24146"
             target="_blank"
@@ -36,7 +36,7 @@ function AppShell() {
             className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition hover:text-accent-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             <span>Read the original article on Medium</span>
-            <ExternalLink className="h-3 w-3" aria-hidden="true" />
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
         </div>
       </footer>
