@@ -1,30 +1,44 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "overnight-ai-startup",
-  "compatibility_date": "2026-07-12",
-  "main": "./worker/index.ts",
-  "assets": {
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
-  },
-  "ai": {
-    "binding": "AI"
-  },
-  "vars": {
-    "MODEL_MEDITATE": "@cf/meta/llama-3.2-3b-instruct",
-    "MODEL_AGENCY": "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
-    "MODEL_VC_ROAST": "@cf/mistralai/mistral-small-3.1-24b-instruct",
-    "MODEL_ORACLE": "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
-    "AI_GATEWAY_MEDITATE": "meditate",
-    "AI_GATEWAY_AGENCY": "agency",
-    "AI_GATEWAY_VC_ROAST": "vc-roast",
-    "AI_GATEWAY_ORACLE": "oracle"
-  },
-  "routes": [
-    {
-      "pattern": "vibe-coding.shiretechpartners.com.au",
-      "custom_domain": true
-    }
-  ]
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "overnight-ai-startup",
+	"compatibility_date": "2026-07-12",
+	"main": "./worker/index.ts",
+	"assets": {
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": [
+			"/api/*"
+		]
+	},
+	"ai": {
+		"binding": "AI"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "QUOTE_CACHE",
+			"id": "6ddba1364a3c4237a6bd2a1beac94ec8",
+			"remote": true
+		},
+		{
+			"binding": "PHRASE_CACHE",
+			"id": "7fa8fdc018ea4aa8807727121430150b",
+			"remote": true
+		}
+	],
+	"vars": {
+		"MODEL_MEDITATE": "@cf/meta/llama-3.2-3b-instruct",
+		"MODEL_AGENCY": "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
+		"MODEL_VC_ROAST": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+		"MODEL_ORACLE": "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
+		"AI_GATEWAY_MEDITATE": "meditate",
+		"AI_GATEWAY_AGENCY": "agency",
+		"AI_GATEWAY_VC_ROAST": "vc-roast",
+		"AI_GATEWAY_ORACLE": "oracle"
+	},
+	"routes": [
+		{
+			"pattern": "vibe-coding.shiretechpartners.com.au",
+			"custom_domain": true
+		}
+	]
 }

@@ -1,4 +1,5 @@
 import handleMeditate from './routes/meditate.ts';
+import handleMeditateQuote from './routes/meditate-quote.ts';
 import handleAgency from './routes/agency.ts';
 import handleRoast from './routes/roast.ts';
 import handleOracle from './routes/oracle.ts';
@@ -34,6 +35,8 @@ export default {
     switch (url.pathname) {
       case '/api/meditate':
         return handleMeditate(env, request, ip);
+      case '/api/meditate/quote':
+        return handleMeditateQuote(env, request, ip);
       case '/api/agency':
         return handleAgency(env, request, ip);
       case '/api/roast':
